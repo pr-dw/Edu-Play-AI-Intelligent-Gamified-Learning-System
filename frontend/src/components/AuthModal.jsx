@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, LogIn, UserPlus, Shield, User, Lock, Mail, Eye, EyeOff, Info } from 'lucide-react';
+import { X, LogIn, UserPlus, User, Lock, Mail, Eye, EyeOff } from 'lucide-react';
 import { api } from '../services/api';
 
 export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
@@ -41,16 +41,6 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
     } finally {
       setLoading(false);
     }
-  };
-
-  // Helper to pre-fill test credentials into inputs (doesn't auto-login, user submits form)
-  const fillCredentials = (username, password) => {
-    setFormData(prev => ({
-      ...prev,
-      username: username,
-      password: password,
-    }));
-    setError(null);
   };
 
   return (
@@ -137,57 +127,6 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
             <span>Register (+100 XP)</span>
           </button>
         </div>
-
-        {/* Helpful Credentials Note */}
-        {mode === 'login' && (
-          <div style={{
-            background: 'var(--bg-surface-elevated)',
-            border: '1px solid var(--border-subtle)',
-            borderRadius: 'var(--radius-md)',
-            padding: '10px 14px',
-            marginBottom: 16,
-            fontSize: '0.8rem',
-            color: 'var(--text-secondary)',
-          }}>
-            <div style={{ fontWeight: 600, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-primary)' }}>
-              <Info size={14} color="var(--primary)" /> Demo Account Fill-ins:
-            </div>
-            <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
-              <button
-                type="button"
-                onClick={() => fillCredentials('sam', 'user123')}
-                style={{
-                  background: 'var(--bg-surface)',
-                  border: '1px solid var(--border-subtle)',
-                  borderRadius: 6,
-                  padding: '4px 8px',
-                  fontSize: '0.75rem',
-                  cursor: 'pointer',
-                  color: 'var(--text-primary)',
-                  fontWeight: 600,
-                }}
-              >
-                👤 Fill User (sam)
-              </button>
-              <button
-                type="button"
-                onClick={() => fillCredentials('admin', 'admin123')}
-                style={{
-                  background: 'var(--bg-surface)',
-                  border: '1px solid var(--border-subtle)',
-                  borderRadius: 6,
-                  padding: '4px 8px',
-                  fontSize: '0.75rem',
-                  cursor: 'pointer',
-                  color: 'var(--text-primary)',
-                  fontWeight: 600,
-                }}
-              >
-                🛡️ Fill Admin (admin)
-              </button>
-            </div>
-          </div>
-        )}
 
         {error && (
           <div style={{

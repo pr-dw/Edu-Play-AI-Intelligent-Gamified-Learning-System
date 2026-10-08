@@ -541,7 +541,7 @@ export default function AdminDashboard({ currentUser, onRefreshUser }) {
           <div className="glass-panel" style={{ padding: 24, height: 'fit-content' }}>
             <h4 style={{ fontSize: '1.05rem', marginBottom: 10 }}>Database Seeding & Reset</h4>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 16 }}>
-              Quickly seed or refresh demo courses, lessons, and demo accounts (Student Sam, Teacher Alex, Platform Admin).
+              Quickly seed or refresh demo courses, lessons, and demo accounts (User Prabhat, User Alex, Platform Admin).
             </p>
             <button
               className="btn btn-secondary"

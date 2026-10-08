@@ -31,27 +31,35 @@ def seed_database():
             'bio': 'System administrator overseeing platform curriculums and intelligence.'
         }
     )
-    if created:
-        admin.set_password('admin123')
-        admin.save()
+    # Always ensure admin password is set to 123456
+    admin.set_password('123456')
+    admin.save()
 
-    # User 1 (Sam)
-    user_sam, created = User.objects.get_or_create(
-        username='sam',
-        defaults={
-            'email': 'sam@eduplay.ai',
-            'first_name': 'Sam',
-            'last_name': 'Taylor',
-            'role': 'user',
-            'points': 320,
-            'level': 2,
-            'avatar': '⚡',
-            'bio': 'Lifelong learner curious about AI systems and software engineering.'
-        }
-    )
-    if created:
-        user_sam.set_password('user123')
-        user_sam.save()
+    # User 1 (Prabhat) - rename sam if exists, or create prabhat
+    old_sam = User.objects.filter(username='sam').first()
+    if old_sam:
+        old_sam.username = 'prabhat'
+        old_sam.first_name = 'Prabhat'
+        old_sam.email = 'prabhat@eduplay.ai'
+        old_sam.set_password('123456')
+        old_sam.save()
+        user_prabhat = old_sam
+    else:
+        user_prabhat, created = User.objects.get_or_create(
+            username='prabhat',
+            defaults={
+                'email': 'prabhat@eduplay.ai',
+                'first_name': 'Prabhat',
+                'last_name': '',
+                'role': 'user',
+                'points': 320,
+                'level': 2,
+                'avatar': '⚡',
+                'bio': 'Lifelong learner curious about AI systems and software engineering.'
+            }
+        )
+        user_prabhat.set_password('123456')
+        user_prabhat.save()
 
     # User 2 (Alex)
     user_alex, created = User.objects.get_or_create(
@@ -67,9 +75,8 @@ def seed_database():
             'bio': 'Passionate builder exploring deep learning and full-stack development.'
         }
     )
-    if created:
-        user_alex.set_password('user123')
-        user_alex.save()
+    user_alex.set_password('123456')
+    user_alex.save()
 
     # 3. Categories
     cat_ai, _ = Category.objects.get_or_create(name='Artificial Intelligence', defaults={'icon': '🧠'})
@@ -275,8 +282,8 @@ Big-O notation characterizes the upper bound of an algorithm's execution time or
         }
     )
 
-    # 5. Enroll user_sam in Course 1 with Lesson 1 completed
-    e1, _ = Enrollment.objects.get_or_create(user=user_sam, course=c1)
+    # 5. Enroll user_prabhat in Course 1 with Lesson 1 completed
+    e1, _ = Enrollment.objects.get_or_create(user=user_prabhat, course=c1)
     for l in c1.lessons.all():
         LessonProgress.objects.get_or_create(enrollment=e1, lesson=l)
     
@@ -289,6 +296,6 @@ Big-O notation characterizes the upper bound of an algorithm's execution time or
 
     return {
         'message': 'Successfully seeded EduPlay AI PostgreSQL database.',
-        'users_created': ['admin (pass: admin123)', 'sam (pass: user123)', 'alex (pass: user123)'],
+        'users_created': ['admin (pass: 123456)', 'prabhat (pass: 123456)', 'alex (pass: 123456)'],
         'courses_created': [c1.title, c2.title, c3.title],
     }

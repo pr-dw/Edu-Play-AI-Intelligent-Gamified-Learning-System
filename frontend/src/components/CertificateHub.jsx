@@ -198,7 +198,7 @@ export default function CertificateHub({ currentUser, onRefreshUser, initialClai
               <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>🔒</div>
               <h3>Sign In to View Your Certificates</h3>
               <p style={{ color: 'var(--text-muted)', marginTop: 6 }}>
-                Log in as Student Sam or create an account to view and download your earned certificates.
+                Log in as Prabhat or create an account to view and download your earned certificates.
               </p>
             </div>
           ) : loading ? (

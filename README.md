@@ -8,10 +8,10 @@ An intelligent, web-based gamified e-learning platform featuring an AI Personal 
 
 ### 1. User Management Module (`users`)
 - **Roles**: Only **`user`** (Learner) and **`admin`** (Administrator).
-- **Authentication**: JWT token-based authentication (`rest_framework_simplejwt`) and session auth.
+- **Accounts**: Configured accounts for `prabhat` (user) and `admin` (administrator).
+- **Authentication**: JWT token-based authentication (`rest_framework_simplejwt`) and session auth with secure credential entry.
 - **Gamification Mechanics**: XP points awarded for enrolling (+25 XP), completing lessons (+50–75 XP), course completion (+500–600 XP), asking questions to the AI Tutor (+5 XP), and claiming certificates (+200 XP).
 - **Leaderboard**: Global rankings based on total earned XP.
-- **1-Click Demo Profiles**: Instant testing available for Users (`sam` and `alex`) and Admin (`admin`).
 
 ### 2. Course Management Module (`courses`)
 - **Curriculums & Categories**: Structured courses organized by categories (Artificial Intelligence, Full-Stack Web Dev, Data Science & Python) and difficulty levels (Beginner, Intermediate, Advanced).
@@ -63,15 +63,15 @@ Configured in `backend/.env` and [settings.py](file:///home/prdw/Desktop/Gamiefi
 
 ---
 
-## 🔑 Demo Accounts
+## 🔑 Accounts & Credentials
 
-Pre-configured accounts available via 1-click buttons in the UI:
+Sign in with the following credentials:
 
 | Role | Username | Password | Notes |
 |---|---|---|---|
-| **User** | `sam` | `user123` | Enrolled in LangChain masterclass with earned XP & certificate |
-| **User** | `alex` | `user123` | Active user exploring React & Python curriculums |
-| **Admin** | `admin` | `admin123` | Full access to Administration console & platform settings |
+| **User** | `prabhat` | `123456` | Enrolled in LangChain masterclass with earned XP & verified certificate |
+| **Admin** | `admin` | `123456` | Full access to Administration console & platform settings |
+| **User** | `alex` | `123456` | Active user exploring React & Python curriculums |
 
 ---
 
