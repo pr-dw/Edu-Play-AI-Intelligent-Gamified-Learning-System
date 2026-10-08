@@ -124,7 +124,7 @@ export default function CourseCatalog({ currentUser, onSelectCourse, onSelectLes
         flexWrap: 'wrap',
         gap: 20,
       }}>
-        <div style={{ maxWidth: 650 }}>
+        <div style={{ maxWidth: 840 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
             <span className="badge badge-xp">🎮 Interactive Gamified Learning</span>
             <span className="badge badge-cyan">🤖 AI Personal Tutor Integrated</span>
@@ -142,34 +142,6 @@ export default function CourseCatalog({ currentUser, onSelectCourse, onSelectLes
           <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: 1.6 }}>
             Explore industry-crafted curriculums with interactive lessons. Ask your Personal AI Tutor anytime for analogies, explanations, and step-by-step guidance, and earn verified certificates on completion!
           </p>
-        </div>
-
-        {/* Floating Quick Stats Card */}
-        <div style={{
-          background: 'var(--bg-surface)',
-          border: '1px solid var(--border-subtle)',
-          borderRadius: 'var(--radius-lg)',
-          padding: '20px 24px',
-          minWidth: 240,
-          boxShadow: 'var(--shadow-card)',
-        }}>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: 8, textTransform: 'uppercase', fontWeight: 600 }}>
-            Curriculum Highlights
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>AI Mentoring</span>
-              <span className="badge badge-cyan">24/7 Guidance</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Study Support</span>
-              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--secondary)' }}>Personalized</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Credentials</span>
-              <span className="badge badge-xp">Verified PDF</span>
-            </div>
-          </div>
         </div>
       </div>
 
