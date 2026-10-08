@@ -257,20 +257,19 @@ export default function LessonViewer({
         <aside className="glass-panel" style={{
           position: 'sticky',
           top: 80,
-          maxHeight: 'calc(100vh - 100px)',
-          overflowY: 'auto',
+          height: 'calc(100vh - 100px)',
           padding: 20,
           borderRadius: 'var(--radius-lg)',
           border: '1px solid var(--border-subtle)',
           display: 'flex',
           flexDirection: 'column',
-          gap: 16,
+          boxSizing: 'border-box',
         }}>
           {/* Back button */}
           <button
             className="btn btn-secondary btn-sm"
             onClick={onBack}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, width: '100%' }}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, width: '100%', marginBottom: 14 }}
           >
             <ArrowLeft size={15} />
             <span>Back to Curriculums</span>
@@ -278,7 +277,7 @@ export default function LessonViewer({
 
           {/* Course Details Header */}
           {courseData && (
-            <div style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: 14 }}>
+            <div style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: 14, marginBottom: 14 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                 <span style={{ fontSize: '1.4rem' }}>{courseData.thumbnail || '🎯'}</span>
                 <span className="badge badge-cyan" style={{ fontSize: '0.7rem' }}>
@@ -311,12 +310,21 @@ export default function LessonViewer({
             </div>
           )}
 
-          {/* Lessons List Tree */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: 4 }}>
-              Course Syllabus ({courseData?.lessons?.length || 0} Lessons)
-            </div>
+          {/* Lessons List Tree Header */}
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: 8 }}>
+            Course Syllabus ({courseData?.lessons?.length || 0} Lessons)
+          </div>
 
+          {/* Lessons List Tree - Stretches and scrolls internally */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 6,
+            flex: 1,
+            overflowY: 'auto',
+            minHeight: 0,
+            paddingRight: 4,
+          }}>
             {courseData?.lessons && courseData.lessons.map((l) => {
               const isActive = l.id === lesson.id;
               return (
@@ -384,7 +392,7 @@ export default function LessonViewer({
             <button
               className="btn btn-gold btn-sm"
               onClick={() => onOpenCertificate(lesson.course)}
-              style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+              style={{ marginTop: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, width: '100%' }}
             >
               <Award size={15} />
               <span>View Certificate</span>
@@ -393,7 +401,7 @@ export default function LessonViewer({
         </aside>
 
         {/* CENTER COLUMN: Main Lesson Reading Workspace */}
-        <main style={{ minWidth: 0 }}>
+        <main style={{ minWidth: 0, minHeight: 'calc(100vh - 100px)' }}>
           {/* Header Banner */}
           <div className="glass-panel" style={{
             padding: '24px 28px',
@@ -524,12 +532,13 @@ export default function LessonViewer({
         <aside className="glass-panel" style={{
           position: 'sticky',
           top: 80,
-          maxHeight: 'calc(100vh - 100px)',
+          height: 'calc(100vh - 100px)',
           display: 'flex',
           flexDirection: 'column',
           padding: 16,
           borderRadius: 'var(--radius-lg)',
           border: '1px solid var(--border-glow)',
+          boxSizing: 'border-box',
         }}>
           {/* Tutor Header */}
           <div style={{
@@ -670,7 +679,7 @@ export default function LessonViewer({
             gap: 10,
             paddingRight: 4,
             marginBottom: 10,
-            minHeight: 260,
+            minHeight: 0,
           }}>
             {tutorMessages.map((msg, i) => (
               <div
