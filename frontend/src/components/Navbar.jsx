@@ -1,15 +1,40 @@
-import React from 'react';
-import { BookOpen, Bot, Award, Shield, Trophy, User, LogOut, Sparkles, Layers } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { BookOpen, Bot, Award, Shield, Trophy, User, LogOut, Sun, Moon, Palette, ChevronDown } from 'lucide-react';
 
 export default function Navbar({
   activeTab,
   setActiveTab,
   currentUser,
   userStats,
+  currentTheme = 'light',
+  onSelectTheme,
   onOpenAuth,
   onLogout,
   onOpenTutor
 }) {
+  const [themeDropdownOpen, setThemeDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const themes = [
+    { id: 'light', name: 'Light (Default)', icon: '☀️', color: '#f59e0b' },
+    { id: 'dark', name: 'Dark Obsidian', icon: '🌙', color: '#6366f1' },
+    { id: 'cyber', name: 'Cyberpunk Neon', icon: '⚡', color: '#ec4899' },
+    { id: 'emerald', name: 'Emerald Sage', icon: '🌿', color: '#10b981' },
+    { id: 'sunset', name: 'Solar Sunset', icon: '🌅', color: '#f43f5e' },
+  ];
+
+  const currentThemeObj = themes.find(t => t.id === currentTheme) || themes[0];
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setThemeDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <header className="glass-panel" style={{
       position: 'sticky',
@@ -25,19 +50,20 @@ export default function Navbar({
     }}>
       {/* Brand */}
       <div 
-        onClick={() => setActiveTab('courses')} 
+        onClick={() => setActiveTab(currentUser?.role === 'admin' ? 'admin' : 'courses')} 
         style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
       >
         <div style={{
           width: 42,
           height: 42,
           borderRadius: 12,
-          background: 'linear-gradient(135deg, #6366f1 0%, #06b6d4 100%)',
+          background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           boxShadow: '0 0 20px var(--primary-glow)',
-          fontSize: '1.4rem'
+          fontSize: '1.4rem',
+          color: '#ffffff'
         }}>
           ⚡
         </div>
@@ -67,11 +93,11 @@ export default function Navbar({
         <button
           className={`btn ${activeTab === 'tutor' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
           onClick={() => setActiveTab('tutor')}
-          style={activeTab === 'tutor' ? {} : { borderColor: 'rgba(99, 102, 241, 0.4)' }}
+          style={activeTab === 'tutor' ? {} : { borderColor: 'var(--border-glow)' }}
         >
-          <Bot size={16} color={activeTab === 'tutor' ? '#fff' : '#818cf8'} />
+          <Bot size={16} color={activeTab === 'tutor' ? '#fff' : 'var(--primary)'} />
           <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            AI Tutor <span style={{ fontSize: '0.65rem', background: 'rgba(99, 102, 241, 0.3)', padding: '1px 5px', borderRadius: 4 }}>LangChain</span>
+            AI Tutor <span style={{ fontSize: '0.65rem', background: 'rgba(99, 102, 241, 0.15)', padding: '1px 5px', borderRadius: 4 }}>LangChain</span>
           </span>
         </button>
 
@@ -79,7 +105,7 @@ export default function Navbar({
           className={`btn ${activeTab === 'certificates' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
           onClick={() => setActiveTab('certificates')}
         >
-          <Award size={16} color={activeTab === 'certificates' ? '#fff' : '#f59e0b'} />
+          <Award size={16} color={activeTab === 'certificates' ? '#fff' : 'var(--accent-gold)'} />
           <span>Certificates</span>
         </button>
 
@@ -87,7 +113,7 @@ export default function Navbar({
           className={`btn ${activeTab === 'leaderboard' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
           onClick={() => setActiveTab('leaderboard')}
         >
-          <Trophy size={16} color={activeTab === 'leaderboard' ? '#fff' : '#fbbf24'} />
+          <Trophy size={16} color={activeTab === 'leaderboard' ? '#fff' : 'var(--accent-gold)'} />
           <span>Leaderboard</span>
         </button>
 
@@ -98,13 +124,77 @@ export default function Navbar({
             style={activeTab === 'admin' ? {} : { borderColor: 'rgba(239, 68, 68, 0.3)' }}
           >
             <Shield size={16} color="#f87171" />
-            <span>Admin</span>
+            <span>Admin Console</span>
           </button>
         )}
       </nav>
 
-      {/* User / Gamification Pill */}
+      {/* Right Controls: Theme Toggle & User Info */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        {/* Theme Selector Dropdown */}
+        <div ref={dropdownRef} style={{ position: 'relative' }}>
+          <button
+            className="btn btn-secondary btn-sm"
+            onClick={() => setThemeDropdownOpen(!themeDropdownOpen)}
+            style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
+            title="Change Platform Theme"
+          >
+            <span style={{ fontSize: '1rem' }}>{currentThemeObj.icon}</span>
+            <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{currentThemeObj.name.split(' ')[0]}</span>
+            <ChevronDown size={14} color="var(--text-muted)" />
+          </button>
+
+          {themeDropdownOpen && (
+            <div className="glass-panel animate-slide-in" style={{
+              position: 'absolute',
+              top: 'calc(100% + 8px)',
+              right: 0,
+              width: 190,
+              padding: 6,
+              zIndex: 200,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 4,
+              boxShadow: 'var(--shadow-card-hover)',
+            }}>
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700, padding: '4px 8px', textTransform: 'uppercase' }}>
+                Select Theme
+              </div>
+              {themes.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => {
+                    onSelectTheme(t.id);
+                    setThemeDropdownOpen(false);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '8px 12px',
+                    borderRadius: 'var(--radius-sm)',
+                    border: 'none',
+                    background: currentTheme === t.id ? 'var(--primary)' : 'transparent',
+                    color: currentTheme === t.id ? '#ffffff' : 'var(--text-primary)',
+                    cursor: 'pointer',
+                    fontSize: '0.825rem',
+                    fontWeight: 600,
+                    textAlign: 'left',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span>{t.icon}</span>
+                    <span>{t.name}</span>
+                  </span>
+                  {currentTheme === t.id && <span>✓</span>}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* User / Auth Pill */}
         {currentUser ? (
           <>
             {/* Gamified XP Indicator */}
@@ -112,14 +202,14 @@ export default function Navbar({
               display: 'flex',
               alignItems: 'center',
               gap: 8,
-              background: 'rgba(245, 158, 11, 0.12)',
-              border: '1px solid rgba(245, 158, 11, 0.3)',
+              background: 'rgba(217, 119, 6, 0.1)',
+              border: '1px solid var(--border-gold)',
               borderRadius: 'var(--radius-pill)',
               padding: '4px 12px',
             }}>
               <span style={{ fontSize: '1.1rem' }}>⭐</span>
               <div>
-                <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fbbf24' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--accent-gold)' }}>
                   {currentUser.points} XP
                 </div>
                 <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>
@@ -133,7 +223,7 @@ export default function Navbar({
               display: 'flex',
               alignItems: 'center',
               gap: 10,
-              background: 'rgba(255, 255, 255, 0.04)',
+              background: 'var(--bg-surface)',
               border: '1px solid var(--border-subtle)',
               borderRadius: 'var(--radius-pill)',
               padding: '4px 12px 4px 6px',
@@ -142,13 +232,14 @@ export default function Navbar({
                 width: 32,
                 height: 32,
                 borderRadius: '50%',
-                background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
+                background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '1.1rem'
+                fontSize: '1.1rem',
+                color: '#fff'
               }}>
-                {currentUser.avatar || '🎓'}
+                {currentUser.avatar || '⚡'}
               </div>
               <div style={{ lineHeight: 1.2 }}>
                 <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{currentUser.username}</div>
@@ -176,7 +267,7 @@ export default function Navbar({
         ) : (
           <button className="btn btn-primary btn-sm" onClick={onOpenAuth}>
             <User size={16} />
-            <span>Sign In / Demo</span>
+            <span>Sign In</span>
           </button>
         )}
       </div>

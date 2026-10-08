@@ -16,6 +16,11 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('courses'); // 'courses', 'tutor', 'certificates', 'leaderboard', 'admin'
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
+  // Multi-Theme State (Default: 'light')
+  const [currentTheme, setCurrentTheme] = useState(() => {
+    return localStorage.getItem('eduplay_theme') || 'light';
+  });
+
   // Course & Lesson view states
   const [selectedCourseId, setSelectedCourseId] = useState(null);
   const [selectedLessonId, setSelectedLessonId] = useState(null);
@@ -26,6 +31,12 @@ export default function App() {
 
   // Direct certificate claim course ID
   const [claimCourseId, setClaimCourseId] = useState(null);
+
+  // Apply theme to DOM
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    localStorage.setItem('eduplay_theme', currentTheme);
+  }, [currentTheme]);
 
   // Load user from storage and refresh profile/stats
   const refreshUser = async () => {
@@ -54,12 +65,24 @@ export default function App() {
     refreshUser();
   }, []);
 
+  // Handle explicit login success with role-based dashboard loading
+  const handleAuthSuccess = (user) => {
+    setCurrentUser(user);
+    refreshUser();
+    if (user.role === 'admin') {
+      setActiveTab('admin'); // Load Administration Dashboard
+    } else {
+      setActiveTab('courses'); // Load User Learning Dashboard
+    }
+  };
+
   const handleLogout = () => {
     api.auth.logout();
     setCurrentUser(null);
     setUserStats(null);
     setSelectedLessonId(null);
     setSelectedCourseId(null);
+    setActiveTab('courses');
   };
 
   const handleOpenTutorWithCourse = (course) => {
@@ -80,7 +103,7 @@ export default function App() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Top Navbar */}
+      {/* Top Navbar with Multi-Theme Switcher */}
       <Navbar
         activeTab={activeTab}
         setActiveTab={(tab) => {
@@ -92,6 +115,8 @@ export default function App() {
         }}
         currentUser={currentUser}
         userStats={userStats}
+        currentTheme={currentTheme}
+        onSelectTheme={setCurrentTheme}
         onOpenAuth={() => setAuthModalOpen(true)}
         onLogout={handleLogout}
         onOpenTutor={() => setActiveTab('tutor')}
@@ -166,14 +191,11 @@ export default function App() {
         />
       )}
 
-      {/* Auth / Demo Modal */}
+      {/* Auth Modal with credential entry form and role-based redirect */}
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
-        onAuthSuccess={(user) => {
-          setCurrentUser(user);
-          refreshUser();
-        }}
+        onAuthSuccess={handleAuthSuccess}
       />
 
       {/* Footer */}
@@ -184,17 +206,17 @@ export default function App() {
         textAlign: 'center',
         fontSize: '0.8rem',
         color: 'var(--text-muted)',
-        background: 'rgba(9, 13, 22, 0.8)'
+        background: 'var(--bg-surface)'
       }}>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginBottom: 8, flexWrap: 'wrap' }}>
           <span>⚡ EduPlay AI — Intelligent Gamified E-Learning Platform</span>
           <span>•</span>
-          <span>🤖 LangChain AI Tutor (Ollama Qwen 2.5: 3B & Gemini API)</span>
+          <span>🤖 LangChain AI Tutor (Ollama & Gemini)</span>
           <span>•</span>
           <span>🎓 Verified Credentials</span>
         </div>
         <div>
-          5 Core Modules: User Management • Course Management • AI Personal Tutor • Certificate Management • Administration
+          Role-Based Access: User & Administrator
         </div>
       </footer>
     </div>

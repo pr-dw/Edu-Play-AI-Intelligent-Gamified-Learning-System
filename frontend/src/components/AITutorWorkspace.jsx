@@ -228,10 +228,11 @@ export default function AITutorWorkspace({
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{
               display: 'flex',
-              background: 'rgba(15, 23, 42, 0.8)',
+              background: 'var(--bg-surface)',
               padding: 4,
               borderRadius: 'var(--radius-pill)',
               border: '1px solid var(--border-subtle)',
+              boxShadow: 'var(--shadow-card)',
             }}>
               {/* Ollama Button */}
               <button
@@ -293,7 +294,7 @@ export default function AITutorWorkspace({
           <div className="animate-slide-in" style={{
             marginTop: 16,
             padding: 16,
-            background: 'rgba(15, 23, 42, 0.9)',
+            background: 'var(--bg-surface-elevated)',
             borderRadius: 'var(--radius-md)',
             border: '1px solid var(--border-subtle)',
             display: 'flex',
@@ -442,15 +443,15 @@ export default function AITutorWorkspace({
                 maxWidth: '80%',
                 padding: '14px 18px',
                 borderRadius: 'var(--radius-lg)',
-                background: isUser ? 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)' : 'rgba(15, 23, 42, 0.85)',
+                background: isUser ? 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)' : 'var(--bg-surface-elevated)',
                 border: '1px solid',
-                borderColor: isUser ? 'rgba(99, 102, 241, 0.5)' : 'var(--border-subtle)',
-                color: '#f8fafc',
-                boxShadow: isUser ? '0 4px 14px var(--primary-glow)' : '0 4px 12px rgba(0,0,0,0.2)',
+                borderColor: isUser ? 'var(--border-glow)' : 'var(--border-subtle)',
+                color: isUser ? '#ffffff' : 'var(--text-primary)',
+                boxShadow: isUser ? '0 4px 14px var(--primary-glow)' : 'var(--shadow-card)',
               }}>
                 <div style={{
                   fontSize: '0.725rem',
-                  color: isUser ? '#c7d2fe' : 'var(--text-muted)',
+                  color: isUser ? 'rgba(255, 255, 255, 0.85)' : 'var(--text-muted)',
                   marginBottom: 6,
                   display: 'flex',
                   justifyContent: 'space-between',

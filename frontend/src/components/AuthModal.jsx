@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, LogIn, UserPlus, Sparkles, Shield, User, Award } from 'lucide-react';
+import { X, LogIn, UserPlus, Shield, User, Lock, Mail, Eye, EyeOff, Info } from 'lucide-react';
 import { api } from '../services/api';
 
 export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
@@ -15,6 +15,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
     role: 'user',
     avatar: '⚡',
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -27,7 +28,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
 
     try {
       if (mode === 'login') {
-        const res = await api.auth.login(formData.username, formData.password);
+        const res = await api.auth.login(formData.username.trim(), formData.password);
         onAuthSuccess(res.user);
         onClose();
       } else {
@@ -36,45 +37,20 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
         onClose();
       }
     } catch (err) {
-      setError(err.message || 'Authentication failed. Please check credentials.');
+      setError(err.message || 'Authentication failed. Please verify your credentials.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleQuickDemo = async (accountType) => {
-    setLoading(true);
+  // Helper to pre-fill test credentials into inputs (doesn't auto-login, user submits form)
+  const fillCredentials = (username, password) => {
+    setFormData(prev => ({
+      ...prev,
+      username: username,
+      password: password,
+    }));
     setError(null);
-    let username = '';
-    let password = '';
-
-    if (accountType === 'user_sam') {
-      username = 'sam';
-      password = 'user123';
-    } else if (accountType === 'user_alex') {
-      username = 'alex';
-      password = 'user123';
-    } else if (accountType === 'admin') {
-      username = 'admin';
-      password = 'admin123';
-    }
-
-    try {
-      const res = await api.auth.login(username, password);
-      onAuthSuccess(res.user);
-      onClose();
-    } catch (err) {
-      try {
-        await api.admin.seedData();
-        const res = await api.auth.login(username, password);
-        onAuthSuccess(res.user);
-        onClose();
-      } catch (innerErr) {
-        setError(innerErr.message || 'Demo login failed');
-      }
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (
@@ -84,8 +60,8 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
       left: 0,
       right: 0,
       bottom: 0,
-      background: 'rgba(0, 0, 0, 0.75)',
-      backdropFilter: 'blur(8px)',
+      background: 'rgba(0, 0, 0, 0.65)',
+      backdropFilter: 'blur(10px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -94,7 +70,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
     }}>
       <div className="glass-panel animate-slide-in" style={{
         width: '100%',
-        maxWidth: 480,
+        maxWidth: 460,
         padding: 32,
         position: 'relative',
         border: '1px solid var(--border-glow)',
@@ -116,7 +92,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
         </button>
 
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+        <div style={{ textAlign: 'center', marginBottom: 20 }}>
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -124,85 +100,102 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
             width: 52,
             height: 52,
             borderRadius: 16,
-            background: 'linear-gradient(135deg, #6366f1 0%, #06b6d4 100%)',
+            background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
             fontSize: '1.8rem',
             marginBottom: 12,
             boxShadow: '0 8px 24px var(--primary-glow)',
+            color: '#fff'
           }}>
             ⚡
           </div>
           <h2 style={{ fontSize: '1.5rem', marginBottom: 4 }}>
-            {mode === 'login' ? 'Welcome to EduPlay AI' : 'Create an Account'}
+            {mode === 'login' ? 'Sign In to EduPlay AI' : 'Create an Account'}
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-            {mode === 'login' ? 'Sign in to access your courses, AI tutor, and certificates.' : 'Register to begin earning XP and learning with the AI Tutor.'}
+            {mode === 'login' 
+              ? 'Enter your credentials to load your personalized dashboard.' 
+              : 'Register to start learning and earning XP.'}
           </p>
         </div>
 
-        {/* 1-Click Demo Accounts */}
-        <div style={{
-          background: 'rgba(15, 23, 42, 0.6)',
-          border: '1px solid var(--border-subtle)',
-          borderRadius: 'var(--radius-md)',
-          padding: 14,
-          marginBottom: 20,
-        }}>
-          <div style={{ fontSize: '0.775rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Sparkles size={14} color="#fbbf24" /> Instant 1-Click Demo Access
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-            <button
-              className="btn btn-secondary btn-sm"
-              style={{ fontSize: '0.775rem', padding: '6px 8px' }}
-              onClick={() => handleQuickDemo('user_sam')}
-              disabled={loading}
-            >
-              <span>⚡ User (Sam)</span>
-            </button>
-            <button
-              className="btn btn-secondary btn-sm"
-              style={{ fontSize: '0.775rem', padding: '6px 8px' }}
-              onClick={() => handleQuickDemo('user_alex')}
-              disabled={loading}
-            >
-              <span>🧠 User (Alex)</span>
-            </button>
-            <button
-              className="btn btn-secondary btn-sm"
-              style={{ fontSize: '0.775rem', padding: '6px 8px', borderColor: 'rgba(239, 68, 68, 0.4)' }}
-              onClick={() => handleQuickDemo('admin')}
-              disabled={loading}
-            >
-              <span>👑 Admin</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Tab switch */}
+        {/* Tab Switch */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
           <button
             className={`btn ${mode === 'login' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
             style={{ flex: 1 }}
             onClick={() => { setMode('login'); setError(null); }}
           >
-            Sign In
+            <LogIn size={15} />
+            <span>Sign In</span>
           </button>
           <button
             className={`btn ${mode === 'register' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
             style={{ flex: 1 }}
             onClick={() => { setMode('register'); setError(null); }}
           >
-            Register (+100 XP)
+            <UserPlus size={15} />
+            <span>Register (+100 XP)</span>
           </button>
         </div>
 
+        {/* Helpful Credentials Note */}
+        {mode === 'login' && (
+          <div style={{
+            background: 'var(--bg-surface-elevated)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: 'var(--radius-md)',
+            padding: '10px 14px',
+            marginBottom: 16,
+            fontSize: '0.8rem',
+            color: 'var(--text-secondary)',
+          }}>
+            <div style={{ fontWeight: 600, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-primary)' }}>
+              <Info size={14} color="var(--primary)" /> Demo Account Fill-ins:
+            </div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
+              <button
+                type="button"
+                onClick={() => fillCredentials('sam', 'user123')}
+                style={{
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: 6,
+                  padding: '4px 8px',
+                  fontSize: '0.75rem',
+                  cursor: 'pointer',
+                  color: 'var(--text-primary)',
+                  fontWeight: 600,
+                }}
+              >
+                👤 Fill User (sam)
+              </button>
+              <button
+                type="button"
+                onClick={() => fillCredentials('admin', 'admin123')}
+                style={{
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: 6,
+                  padding: '4px 8px',
+                  fontSize: '0.75rem',
+                  cursor: 'pointer',
+                  color: 'var(--text-primary)',
+                  fontWeight: 600,
+                }}
+              >
+                🛡️ Fill Admin (admin)
+              </button>
+            </div>
+          </div>
+        )}
+
         {error && (
           <div style={{
-            background: 'rgba(239, 68, 68, 0.15)',
+            background: 'rgba(239, 68, 68, 0.12)',
             border: '1px solid rgba(239, 68, 68, 0.3)',
             borderRadius: 'var(--radius-md)',
             padding: '10px 14px',
-            color: '#f87171',
+            color: 'var(--danger)',
             fontSize: '0.85rem',
             marginBottom: 16,
           }}>
@@ -210,41 +203,49 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
           </div>
         )}
 
-        {/* Form */}
+        {/* Real Authentication Form */}
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 4 }}>
-              Username
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 5 }}>
+              Username or Email
             </label>
-            <input
-              type="text"
-              className="input-control"
-              required
-              value={formData.username}
-              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-              placeholder={mode === 'login' ? 'e.g. sam or admin' : 'Choose a username'}
-            />
+            <div style={{ position: 'relative' }}>
+              <User size={16} color="var(--text-muted)" style={{ position: 'absolute', left: 14, top: 13 }} />
+              <input
+                type="text"
+                className="input-control"
+                style={{ paddingLeft: 40 }}
+                required
+                value={formData.username}
+                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                placeholder={mode === 'login' ? 'Enter username or email' : 'Choose a unique username'}
+              />
+            </div>
           </div>
 
           {mode === 'register' && (
             <>
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 4 }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 5 }}>
                   Email Address
                 </label>
-                <input
-                  type="email"
-                  className="input-control"
-                  required
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="user@example.com"
-                />
+                <div style={{ position: 'relative' }}>
+                  <Mail size={16} color="var(--text-muted)" style={{ position: 'absolute', left: 14, top: 13 }} />
+                  <input
+                    type="email"
+                    className="input-control"
+                    style={{ paddingLeft: 40 }}
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="user@example.com"
+                  />
+                </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 4 }}>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 5 }}>
                     First Name
                   </label>
                   <input
@@ -256,7 +257,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 4 }}>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 5 }}>
                     Last Name
                   </label>
                   <input
@@ -270,7 +271,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 4 }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 5 }}>
                   Account Role
                 </label>
                 <select
@@ -284,8 +285,8 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>
-                  Choose Avatar
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>
+                  Choose Avatar Emoji
                 </label>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   {avatars.map((av) => (
@@ -297,9 +298,9 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                         fontSize: '1.2rem',
                         padding: '6px 10px',
                         borderRadius: 'var(--radius-sm)',
-                        background: formData.avatar === av ? 'var(--primary)' : 'rgba(255,255,255,0.05)',
+                        background: formData.avatar === av ? 'var(--primary)' : 'var(--bg-surface-elevated)',
                         border: '1px solid',
-                        borderColor: formData.avatar === av ? '#fff' : 'var(--border-subtle)',
+                        borderColor: formData.avatar === av ? 'var(--primary)' : 'var(--border-subtle)',
                         cursor: 'pointer',
                       }}
                     >
@@ -312,26 +313,45 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
           )}
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 4 }}>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 5 }}>
               Password
             </label>
-            <input
-              type="password"
-              className="input-control"
-              required
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              placeholder="••••••••"
-            />
+            <div style={{ position: 'relative' }}>
+              <Lock size={16} color="var(--text-muted)" style={{ position: 'absolute', left: 14, top: 13 }} />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                className="input-control"
+                style={{ paddingLeft: 40, paddingRight: 40 }}
+                required
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: 12,
+                  top: 11,
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--text-muted)',
+                  cursor: 'pointer',
+                }}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
           </div>
 
           <button
             type="submit"
             className="btn btn-primary"
-            style={{ width: '100%', marginTop: 8 }}
+            style={{ width: '100%', marginTop: 8, padding: '12px 18px' }}
             disabled={loading}
           >
-            {loading ? 'Processing...' : mode === 'login' ? 'Sign In' : 'Create Account & Claim 100 XP'}
+            {loading ? 'Authenticating...' : mode === 'login' ? 'Sign In' : 'Create Account & Claim 100 XP'}
           </button>
         </form>
       </div>

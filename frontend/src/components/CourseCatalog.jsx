@@ -53,7 +53,7 @@ export default function CourseCatalog({ currentUser, onSelectCourse, onSelectLes
         padding: '32px 36px',
         marginBottom: 32,
         borderRadius: 'var(--radius-xl)',
-        background: 'linear-gradient(135deg, rgba(26, 36, 64, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%)',
+        background: 'linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-surface-elevated) 100%)',
         border: '1px solid var(--border-glow)',
         display: 'flex',
         alignItems: 'center',
@@ -69,7 +69,7 @@ export default function CourseCatalog({ currentUser, onSelectCourse, onSelectLes
           <h1 style={{ fontSize: '2.4rem', fontWeight: 800, marginBottom: 12, lineHeight: 1.15 }}>
             Master Skills. Earn XP. <br />
             <span style={{
-              background: 'linear-gradient(135deg, #38bdf8 0%, #818cf8 100%)',
+              background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
             }}>
@@ -83,11 +83,12 @@ export default function CourseCatalog({ currentUser, onSelectCourse, onSelectLes
 
         {/* Floating Quick Stats Card */}
         <div style={{
-          background: 'rgba(15, 23, 42, 0.7)',
+          background: 'var(--bg-surface)',
           border: '1px solid var(--border-subtle)',
           borderRadius: 'var(--radius-lg)',
           padding: '20px 24px',
           minWidth: 240,
+          boxShadow: 'var(--shadow-card)',
         }}>
           <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: 8, textTransform: 'uppercase', fontWeight: 600 }}>
             Curriculum Highlights
@@ -99,7 +100,7 @@ export default function CourseCatalog({ currentUser, onSelectCourse, onSelectLes
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>AI Models</span>
-              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#38bdf8' }}>Qwen 2.5 & Gemini</span>
+              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--secondary)' }}>Qwen 2.5 & Gemini</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Credentials</span>
@@ -113,7 +114,7 @@ export default function CourseCatalog({ currentUser, onSelectCourse, onSelectLes
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 28 }}>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
           {/* Mode Switcher: All Courses vs My Enrolled */}
-          <div style={{ display: 'flex', gap: 8, background: 'rgba(15, 23, 42, 0.6)', padding: 4, borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
+          <div style={{ display: 'flex', gap: 8, background: 'var(--bg-surface-elevated)', padding: 4, borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
             <button
               className={`btn ${viewMode === 'all' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
               onClick={() => setViewMode('all')}
