@@ -68,7 +68,7 @@ export default function LeaderboardView({ currentUser }) {
       ) : (
         <div className="glass-panel" style={{ padding: 20 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {leaders.map((user) => {
+            {leaders.filter(u => u.role !== 'admin').map((user) => {
               const badge = getRankBadge(user.rank);
               const isCurrentUser = currentUser?.id === user.id;
 
@@ -110,8 +110,13 @@ export default function LeaderboardView({ currentUser }) {
                       justifyContent: 'center',
                       fontSize: '1.3rem',
                       border: '1px solid var(--border-subtle)',
+                      overflow: 'hidden'
                     }}>
-                      {user.avatar || '⚡'}
+                      {user.avatar_image_url ? (
+                        <img src={user.avatar_image_url} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        user.avatar || '⚡'
+                      )}
                     </div>
 
                     {/* User info */}
@@ -123,7 +128,7 @@ export default function LeaderboardView({ currentUser }) {
                         )}
                       </div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                        @{user.username} • {user.role}
+                        @{user.username}
                       </div>
                     </div>
                   </div>

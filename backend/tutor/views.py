@@ -29,24 +29,32 @@ class ChatWithTutorView(APIView):
         lesson_id = request.data.get('lesson_id')
         gemini_api_key = request.data.get('gemini_api_key')
 
-        course = None
+        if not course_id:
+            return Response({
+                'error': 'Course selection is required. The AI Tutor only answers questions based on specific courses you are currently enrolled in or have completed.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        from courses.models import Course, Lesson, Enrollment
+        course = Course.objects.filter(pk=course_id).first()
+        if not course:
+            return Response({'error': 'Selected course was not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Enforce that user is currently enrolled in or has completed this course
+        enrollment = Enrollment.objects.filter(user=request.user, course=course).first()
+        if not enrollment:
+            return Response({
+                'error': f"Access restricted. You must be enrolled in '{course.title}' to consult the AI Tutor."
+            }, status=status.HTTP_403_FORBIDDEN)
+
+        lessons_outline = "\n".join([f"- Lesson {l.sequence_order}: {l.title} ({l.description})" for l in course.lessons.all()])
+        course_context = f"Course: {course.title}\nCategory: {course.category.name if course.category else 'General'}\nDescription: {course.description}\nSyllabus Outline:\n{lessons_outline}"
+
         lesson = None
-        course_context = None
         lesson_context = None
-
-        if course_id:
-            try:
-                course = Course.objects.get(pk=course_id)
-                course_context = f"Course: {course.title}\nCategory: {course.category.name if course.category else 'General'}\nDescription: {course.description}"
-            except Course.DoesNotExist:
-                pass
-
         if lesson_id:
-            try:
-                lesson = Lesson.objects.get(pk=lesson_id)
-                lesson_context = f"Lesson: {lesson.title} (Order: {lesson.sequence_order})\nContent Summary: {lesson.description}\nFull Lesson Material:\n{lesson.content}"
-            except Lesson.DoesNotExist:
-                pass
+            lesson = Lesson.objects.filter(pk=lesson_id, course=course).first()
+            if lesson:
+                lesson_context = f"Active Lesson {lesson.sequence_order}: {lesson.title}\nLesson Content:\n{lesson.content}"
 
         # Retrieve or create session
         session = None

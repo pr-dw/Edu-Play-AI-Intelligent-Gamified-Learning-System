@@ -27,7 +27,7 @@ export default function AITutorWorkspace({
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: "Hello! I'm your **EduPlay AI Personal Tutor**, powered by **LangChain**. I'm here to clarify difficult concepts, generate practical examples, summarize lessons, or solve doubts. How can I help your learning today?",
+      content: "Hello! I'm your **EduPlay AI Personal Tutor**, powered by **LangChain**. I am strictly course-grounded to answer questions and resolve doubts exclusively for courses you are currently enrolled in or have completed. Please select your enrolled course above to start learning!",
       provider_used: 'system',
       created_at: new Date().toISOString(),
     }
@@ -60,20 +60,32 @@ export default function AITutorWorkspace({
     }
   };
 
-  // Load courses for context selector
+  // Load only enrolled or completed courses for grounding
   const loadCourses = async () => {
     try {
-      const data = await api.courses.list();
-      setCourses(data);
+      if (!currentUser) {
+        setCourses([]);
+        return;
+      }
+      const myEnrollments = await api.courses.myCourses();
+      const enrolledList = myEnrollments.map(e => ({
+        ...e.course,
+        is_completed: e.is_completed,
+        progress_percentage: e.progress_percentage,
+      }));
+      setCourses(enrolledList);
+      if (enrolledList.length > 0 && !selectedCourseId) {
+        setSelectedCourseId(enrolledList[0].id);
+      }
     } catch (err) {
-      console.error('Error loading courses for tutor:', err);
+      console.error('Error loading enrolled courses for tutor:', err);
     }
   };
 
   useEffect(() => {
     checkStatus();
     loadCourses();
-  }, []);
+  }, [currentUser]);
 
   // Update lessons when selected course changes
   useEffect(() => {
@@ -102,7 +114,19 @@ export default function AITutorWorkspace({
         ...prev,
         {
           role: 'assistant',
-          content: '⚠️ Please sign in or use one of the 1-Click Demo accounts (Student/Teacher/Admin) at the top to chat with the AI Tutor.',
+          content: '⚠️ Please sign in to consult the AI Personal Tutor.',
+          provider_used: 'system'
+        }
+      ]);
+      return;
+    }
+
+    if (!selectedCourseId) {
+      setMessages(prev => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: '⚠️ **Enrolled Course Required**: General questions are disallowed. The AI Tutor only answers questions based on specific courses you are currently enrolled in or have completed. Please select an enrolled course from the selector above!',
           provider_used: 'system'
         }
       ]);
@@ -339,19 +363,26 @@ export default function AITutorWorkspace({
               <BookOpen size={14} /> Ground Tutor in:
             </span>
 
-            {/* Course Selector */}
+            {/* Course Selector - Enrolled Only */}
             <select
               className="input-control"
-              style={{ width: 'auto', minWidth: 200, padding: '6px 12px', fontSize: '0.85rem' }}
+              style={{ width: 'auto', minWidth: 220, padding: '6px 12px', fontSize: '0.85rem' }}
               value={selectedCourseId}
               onChange={(e) => setSelectedCourseId(e.target.value)}
+              disabled={courses.length === 0}
             >
-              <option value="">General Knowledge (No Course)</option>
-              {courses.map(c => (
-                <option key={c.id} value={c.id}>
-                  {c.thumbnail} {c.title}
-                </option>
-              ))}
+              {courses.length === 0 ? (
+                <option value="">No Enrolled Courses Found</option>
+              ) : (
+                <>
+                  <option value="" disabled>-- Select Enrolled Course --</option>
+                  {courses.map(c => (
+                    <option key={c.id} value={c.id}>
+                      {c.thumbnail} {c.title} {c.is_completed ? '🎓 (Completed)' : '⏳ (Enrolled)'}
+                    </option>
+                  ))}
+                </>
+              )}
             </select>
 
             {/* Lesson Selector */}
@@ -522,7 +553,7 @@ export default function AITutorWorkspace({
               setMode(qp.mode);
               handleSendMessage(qp.prompt);
             }}
-            disabled={loading}
+            disabled={loading || !selectedCourseId || courses.length === 0}
           >
             {qp.label}
           </button>
@@ -541,20 +572,24 @@ export default function AITutorWorkspace({
           type="text"
           className="input-control"
           style={{ border: 'none', background: 'transparent', boxShadow: 'none', padding: '8px 4px' }}
-          placeholder={`Ask about this lesson, or request code, analogies, or hints (${provider === 'ollama' ? 'Qwen2.5:3B' : 'Gemini'})...`}
+          placeholder={courses.length === 0 
+            ? "⚠️ Enroll in a course first to ask questions..." 
+            : !selectedCourseId 
+            ? "⚠️ Please select an enrolled course from the selector above..." 
+            : `Ask questions grounded in this course (${provider === 'ollama' ? 'Qwen2.5:3B' : 'Gemini'})...`}
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') handleSendMessage();
           }}
-          disabled={loading}
+          disabled={loading || courses.length === 0 || !selectedCourseId}
         />
 
         <button
           className="btn btn-primary"
           style={{ padding: '10px 18px', borderRadius: 'var(--radius-md)' }}
           onClick={() => handleSendMessage()}
-          disabled={loading || !inputMessage.trim()}
+          disabled={loading || !inputMessage.trim() || !selectedCourseId || courses.length === 0}
         >
           <Send size={16} />
           <span>Send</span>

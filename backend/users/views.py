@@ -55,9 +55,12 @@ class UserStatsView(APIView):
         completed_count = enrollments.filter(is_completed=True).count() if enrollments else 0
         certificates_count = getattr(user, 'certificates', None).count() if hasattr(user, 'certificates') else 0
 
-        # Rank calculation
-        users_with_more_points = User.objects.filter(points__gt=user.points).count()
-        rank = users_with_more_points + 1
+        # Rank calculation (among learners only)
+        if user.role == 'admin' or user.is_staff:
+            rank = "Admin"
+        else:
+            users_with_more_points = User.objects.filter(is_active=True, role='user', is_staff=False, points__gt=user.points).count()
+            rank = users_with_more_points + 1
 
         return Response({
             'points': user.points,
@@ -74,7 +77,13 @@ class LeaderboardView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):
-        top_users = User.objects.filter(is_active=True).order_by('-points')[:10]
+        # Exclude admin and staff from leaderboard rankings
+        top_users = User.objects.filter(
+            is_active=True,
+            role='user',
+            is_staff=False,
+            is_superuser=False
+        ).order_by('-points')[:10]
         data = []
         for rank, u in enumerate(top_users, start=1):
             data.append({
@@ -84,6 +93,7 @@ class LeaderboardView(APIView):
                 'name': f"{u.first_name} {u.last_name}".strip() or u.username,
                 'role': u.role,
                 'avatar': u.avatar,
+                'avatar_image_url': request.build_absolute_uri(u.avatar_image.url) if u.avatar_image else None,
                 'points': u.points,
                 'level': u.level,
             })
