@@ -101,12 +101,26 @@ class CompleteLessonView(APIView):
 
         # Check if course is now 100% completed
         is_now_complete = enrollment.is_completed
+        cert_data = None
+        if is_now_complete:
+            from certificates.models import Certificate
+            cert, cert_created = Certificate.objects.get_or_create(
+                user=request.user,
+                course=lesson.course
+            )
+            if cert_created:
+                request.user.add_points(200)  # Certificate completion bonus XP
+            cert_data = {
+                'certificate_id': cert.certificate_id,
+                'verification_code': str(cert.verification_code),
+            }
 
         return Response({
             'message': f"Lesson '{lesson.title}' marked as complete!" if not already_completed else "Lesson was already completed.",
             'xp_earned': lesson.xp_reward if not already_completed else 0,
             'course_progress': new_progress,
             'is_course_completed': is_now_complete,
+            'certificate': cert_data,
             'total_user_points': request.user.points,
             'user_level': request.user.level,
         })

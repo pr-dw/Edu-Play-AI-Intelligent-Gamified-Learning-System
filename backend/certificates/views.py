@@ -13,6 +13,16 @@ class MyCertificatesListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        # Auto-create certificate for any completed courses
+        completed_enrollments = Enrollment.objects.filter(
+            user=self.request.user,
+            is_completed=True
+        ).select_related('course')
+        for en in completed_enrollments:
+            cert, created = Certificate.objects.get_or_create(user=self.request.user, course=en.course)
+            if created:
+                self.request.user.add_points(200)
+
         return Certificate.objects.filter(user=self.request.user).select_related('course', 'user', 'course__author')
 
 class ClaimCertificateView(APIView):

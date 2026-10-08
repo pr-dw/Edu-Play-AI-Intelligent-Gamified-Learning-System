@@ -161,17 +161,19 @@ export default function CourseDetailModal({
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <button
-                  className="btn btn-secondary btn-sm"
-                  onClick={() => {
-                    onClose();
-                    onOpenTutorForCourse(course);
-                  }}
-                  title="Ask LangChain AI Tutor about this syllabus"
-                >
-                  <Bot size={15} color="#818cf8" />
-                  <span>Ask AI Tutor</span>
-                </button>
+                {course.is_enrolled && (
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => {
+                      onClose();
+                      onOpenTutorForCourse(course);
+                    }}
+                    title="Ask LangChain AI Tutor about this syllabus"
+                  >
+                    <Bot size={15} color="#818cf8" />
+                    <span>Ask AI Tutor</span>
+                  </button>
+                )}
 
                 {course.is_enrolled ? (
                   course.progress_percentage >= 100 ? (
@@ -183,7 +185,7 @@ export default function CourseDetailModal({
                       }}
                     >
                       <Award size={15} />
-                      <span>Claim Certificate</span>
+                      <span>View Certificate</span>
                     </button>
                   ) : (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -200,7 +202,7 @@ export default function CourseDetailModal({
                     disabled={enrolling}
                   >
                     <Sparkles size={15} />
-                    <span>{enrolling ? 'Enrolling...' : 'Enroll (+25 XP)'}</span>
+                    <span>{enrolling ? 'Enrolling...' : 'Enroll in Course (+25 XP)'}</span>
                   </button>
                 )}
               </div>
@@ -267,16 +269,29 @@ export default function CourseDetailModal({
                     </div>
                   </div>
 
-                  <button
-                    className={`btn ${lesson.is_completed ? 'btn-secondary' : 'btn-primary'} btn-sm`}
-                    onClick={() => {
-                      onClose();
-                      onSelectLesson(lesson.id);
-                    }}
-                  >
-                    <Play size={13} />
-                    <span>{lesson.is_completed ? 'Review' : 'Study Lesson'}</span>
-                  </button>
+                  {course.is_enrolled ? (
+                    <button
+                      className={`btn ${lesson.is_completed ? 'btn-secondary' : 'btn-primary'} btn-sm`}
+                      onClick={() => {
+                        onClose();
+                        onSelectLesson(lesson.id);
+                      }}
+                    >
+                      <Play size={13} />
+                      <span>{lesson.is_completed ? 'Review' : 'Study Lesson'}</span>
+                    </button>
+                  ) : (
+                    <span style={{
+                      fontSize: '0.775rem',
+                      color: 'var(--text-muted)',
+                      background: 'rgba(255, 255, 255, 0.04)',
+                      padding: '6px 12px',
+                      borderRadius: 'var(--radius-sm)',
+                      border: '1px solid var(--border-subtle)'
+                    }}>
+                      🔒 Enroll to study
+                    </span>
+                  )}
                 </div>
               ))}
             </div>

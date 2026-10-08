@@ -51,7 +51,12 @@ export default function CertificateHub({ currentUser, onRefreshUser, initialClai
       setClaimableCourses(claimable);
 
       // Auto open if initial course specified
-      if (certs.length > 0 && !selectedCert) {
+      if (initialClaimCourseId) {
+        const found = certs.find(c => c.course === initialClaimCourseId);
+        if (found) {
+          setSelectedCert(found);
+        }
+      } else if (certs.length > 0 && !selectedCert) {
         setSelectedCert(certs[0]);
       }
     } catch (err) {
@@ -65,7 +70,7 @@ export default function CertificateHub({ currentUser, onRefreshUser, initialClai
     loadCertificates();
   }, [currentUser]);
 
-  // Handle direct claim if course id was passed
+  // Handle direct view if course id was passed
   useEffect(() => {
     if (initialClaimCourseId) {
       handleClaim(initialClaimCourseId);
@@ -77,7 +82,11 @@ export default function CertificateHub({ currentUser, onRefreshUser, initialClai
     setClaimMessage(null);
     try {
       const res = await api.certificates.claim(courseId);
-      setClaimMessage(`🎉 ${res.message} Awarded +${res.xp_awarded} Achievement XP!`);
+      if (res.xp_awarded && res.xp_awarded > 0) {
+        setClaimMessage(`🎉 Certificate issued! Earned +${res.xp_awarded} Achievement XP!`);
+      } else {
+        setClaimMessage(`🎓 Official Certificate loaded.`);
+      }
       confetti({
         particleCount: 100,
         spread: 80,
@@ -89,7 +98,7 @@ export default function CertificateHub({ currentUser, onRefreshUser, initialClai
       }
       if (onRefreshUser) onRefreshUser();
     } catch (err) {
-      setClaimMessage(err.message || 'Could not claim certificate.');
+      setClaimMessage(err.message || 'Could not load certificate.');
     } finally {
       setClaiming(false);
     }
@@ -160,7 +169,7 @@ export default function CertificateHub({ currentUser, onRefreshUser, initialClai
         </div>
       </div>
 
-      {/* Claimable notification banner */}
+      {/* Ready to view notification banner */}
       {claimableCourses.length > 0 && (
         <div className="glass-panel animate-slide-in" style={{
           padding: '20px 28px',
@@ -175,7 +184,7 @@ export default function CertificateHub({ currentUser, onRefreshUser, initialClai
         }}>
           <div>
             <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#fbbf24', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Sparkles size={20} /> Certificate Ready to Claim!
+              <Sparkles size={20} /> Certificate Ready to View!
             </div>
             <div style={{ fontSize: '0.875rem', color: '#cbd5e1', marginTop: 4 }}>
               You have completed 100% of <strong>{claimableCourses[0].course.title}</strong>!
@@ -188,7 +197,7 @@ export default function CertificateHub({ currentUser, onRefreshUser, initialClai
             disabled={claiming}
           >
             <Award size={18} />
-            <span>{claiming ? 'Generating Certificate...' : 'Claim Certificate (+200 XP)'}</span>
+            <span>{claiming ? 'Loading Certificate...' : 'View Certificate'}</span>
           </button>
         </div>
       )}
