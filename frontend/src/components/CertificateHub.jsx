@@ -222,7 +222,7 @@ export default function CertificateHub({ currentUser, onRefreshUser, initialClai
               <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>🔒</div>
               <h3>Sign In to View Your Certificates</h3>
               <p style={{ color: 'var(--text-muted)', marginTop: 6 }}>
-                Log in as Prabhat or create an account to view and download your earned certificates.
+                Sign in or create an account to view and download your earned certificates.
               </p>
             </div>
           ) : loading ? (
@@ -424,7 +424,7 @@ export default function CertificateHub({ currentUser, onRefreshUser, initialClai
             </div>
             <h2 style={{ fontSize: '1.5rem', marginBottom: 6 }}>Verify Certificate Authenticity</h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-              Enter any EduPlay AI Certificate ID (e.g. <code>EDU-2026-XXXX</code>) or Verification Hash to check credential integrity.
+              Enter your Certificate ID or Verification Code to check credential authenticity.
             </p>
           </div>
 
@@ -432,7 +432,7 @@ export default function CertificateHub({ currentUser, onRefreshUser, initialClai
             <input
               type="text"
               className="input-control"
-              placeholder="e.g. EDU-2026-A1B2C3D4 or UUID"
+              placeholder="Certificate ID or Verification Code"
               value={verifyInput}
               onChange={(e) => setVerifyInput(e.target.value)}
               required

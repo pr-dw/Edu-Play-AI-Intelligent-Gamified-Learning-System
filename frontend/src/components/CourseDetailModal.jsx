@@ -36,7 +36,7 @@ export default function CourseDetailModal({
 
   const handleEnroll = async () => {
     if (!currentUser) {
-      setActionMessage('Please sign in or select a quick demo account to enroll.');
+      setActionMessage('Please sign in to your account to enroll in this course.');
       return;
     }
     setEnrolling(true);
@@ -168,7 +168,7 @@ export default function CourseDetailModal({
                       onClose();
                       onOpenTutorForCourse(course);
                     }}
-                    title="Ask LangChain AI Tutor about this syllabus"
+                    title="Ask Personal AI Tutor about this syllabus"
                   >
                     <Bot size={15} color="#818cf8" />
                     <span>Ask AI Tutor</span>

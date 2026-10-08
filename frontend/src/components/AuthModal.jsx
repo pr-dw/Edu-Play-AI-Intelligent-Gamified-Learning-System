@@ -157,7 +157,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                 required
                 value={formData.username}
                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                placeholder={mode === 'login' ? 'Enter username or email' : 'Choose a unique username'}
+                placeholder={mode === 'login' ? 'Your username or email' : 'Your desired username'}
               />
             </div>
           </div>
@@ -177,7 +177,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="user@example.com"
+                    placeholder="Your email address"
                   />
                 </div>
               </div>
@@ -192,7 +192,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                     className="input-control"
                     value={formData.first_name}
                     onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                    placeholder="First"
+                    placeholder="Your first name"
                   />
                 </div>
                 <div>
@@ -204,7 +204,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                     className="input-control"
                     value={formData.last_name}
                     onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                    placeholder="Last"
+                    placeholder="Your last name"
                   />
                 </div>
               </div>
@@ -251,7 +251,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                 required
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                placeholder="••••••••"
+                placeholder="Your password"
               />
               <button
                 type="button"

@@ -114,10 +114,9 @@ export default function Navbar({
               <span style={{ fontFamily: 'var(--font-heading)', fontSize: '1.35rem', fontWeight: 800, letterSpacing: '-0.03em' }}>
                 EduPlay <span style={{ color: 'var(--secondary)' }}>AI</span>
               </span>
-              <span className="badge badge-cyan" style={{ fontSize: '0.65rem', padding: '2px 6px' }}>v1.0</span>
             </div>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: 1 }}>
-              Gamified Learning & AI Tutor
+              Interactive Learning & AI Mentoring
             </p>
           </div>
         </div>
@@ -167,9 +166,7 @@ export default function Navbar({
             style={activeTab === 'tutor' ? {} : { borderColor: 'var(--border-glow)' }}
           >
             <Bot size={16} color={activeTab === 'tutor' ? '#fff' : 'var(--primary)'} />
-            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              AI Tutor <span style={{ fontSize: '0.65rem', background: 'rgba(99, 102, 241, 0.15)', padding: '1px 5px', borderRadius: 4 }}>LangChain</span>
-            </span>
+            <span>AI Tutor</span>
           </button>
 
           <button

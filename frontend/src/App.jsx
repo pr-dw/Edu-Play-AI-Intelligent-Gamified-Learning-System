@@ -233,14 +233,14 @@ export default function App() {
         background: 'var(--bg-surface)'
       }}>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginBottom: 8, flexWrap: 'wrap' }}>
-          <span>⚡ EduPlay AI — Intelligent Gamified E-Learning Platform</span>
+          <span>⚡ EduPlay AI — Intelligent Gamified Learning Platform</span>
           <span>•</span>
-          <span>🤖 LangChain AI Tutor (Ollama & Gemini)</span>
+          <span>🤖 Personal AI Study Mentoring</span>
           <span>•</span>
-          <span>🎓 Verified Credentials</span>
+          <span>🎓 Verified Course Certificates</span>
         </div>
         <div>
-          {isAdmin ? '🛡️ Administrator Control Console • EduPlay AI Platform Management' : 'Role-Based Access: User & Administrator'}
+          {isAdmin ? '🛡️ Administrator Control Console • EduPlay AI Platform Management' : 'Empowering learners worldwide with interactive courses and 24/7 AI mentoring.'}
         </div>
       </footer>
     </div>

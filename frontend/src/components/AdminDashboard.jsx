@@ -456,7 +456,7 @@ export default function AdminDashboard({
                 {overview.overview.total_tutor_messages}
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>
-                {overview.overview.ollama_messages} Ollama • {overview.overview.gemini_messages} Gemini
+                {overview.overview.ollama_messages} Standard AI • {overview.overview.gemini_messages} Cloud AI
               </div>
             </div>
           </div>
@@ -621,7 +621,7 @@ export default function AdminDashboard({
                     <input
                       type="text"
                       className="input-control"
-                      placeholder="e.g. Master LangChain & LLM Agents"
+                      placeholder="Course title"
                       required
                       value={newCourse.title}
                       onChange={e => setNewCourse({ ...newCourse, title: e.target.value })}
@@ -634,7 +634,7 @@ export default function AdminDashboard({
                     <input
                       type="text"
                       className="input-control"
-                      placeholder="e.g. Artificial Intelligence"
+                      placeholder="Course category or topic"
                       value={newCourse.category}
                       onChange={e => setNewCourse({ ...newCourse, category: e.target.value })}
                     />
@@ -647,7 +647,7 @@ export default function AdminDashboard({
                   </label>
                   <textarea
                     className="input-control"
-                    placeholder="Describe what learners will achieve and master in this course..."
+                    placeholder="Course overview and learning objectives"
                     rows={3}
                     value={newCourse.description}
                     onChange={e => setNewCourse({ ...newCourse, description: e.target.value })}
@@ -676,7 +676,7 @@ export default function AdminDashboard({
                     <input
                       type="number"
                       className="input-control"
-                      placeholder="e.g. 500"
+                      placeholder="Completion XP reward"
                       value={newCourse.xp_reward}
                       onChange={e => setNewCourse({ ...newCourse, xp_reward: parseInt(e.target.value) || 500 })}
                     />
@@ -750,7 +750,7 @@ export default function AdminDashboard({
                             <input
                               type="text"
                               className="input-control"
-                              placeholder={`Lesson ${idx + 1} Title`}
+                              placeholder={`Lesson ${idx + 1} title`}
                               required
                               value={lesson.title}
                               onChange={e => handleUpdateInitialLesson(idx, 'title', e.target.value)}
@@ -760,7 +760,7 @@ export default function AdminDashboard({
                             <input
                               type="number"
                               className="input-control"
-                              placeholder="Duration (mins)"
+                              placeholder="Duration in minutes"
                               value={lesson.duration_minutes}
                               onChange={e => handleUpdateInitialLesson(idx, 'duration_minutes', parseInt(e.target.value) || 15)}
                             />
@@ -769,7 +769,7 @@ export default function AdminDashboard({
                             <input
                               type="number"
                               className="input-control"
-                              placeholder="XP Reward"
+                              placeholder="Lesson XP reward"
                               value={lesson.xp_reward}
                               onChange={e => handleUpdateInitialLesson(idx, 'xp_reward', parseInt(e.target.value) || 50)}
                             />
@@ -780,7 +780,7 @@ export default function AdminDashboard({
                           <input
                             type="text"
                             className="input-control"
-                            placeholder="Short summary/description for syllabus outline..."
+                            placeholder="Brief lesson summary"
                             value={lesson.description}
                             onChange={e => handleUpdateInitialLesson(idx, 'description', e.target.value)}
                           />
@@ -789,7 +789,7 @@ export default function AdminDashboard({
                         <div>
                           <textarea
                             className="input-control"
-                            placeholder="Markdown lesson content and educational material used by learners & AI Tutor..."
+                            placeholder="Lesson content and learning materials (Markdown)"
                             rows={4}
                             value={lesson.content}
                             onChange={e => handleUpdateInitialLesson(idx, 'content', e.target.value)}
@@ -971,7 +971,7 @@ export default function AdminDashboard({
                     <input
                       type="text"
                       className="input-control"
-                      placeholder="e.g. Multi-Step Prompt Chains"
+                      placeholder="Lesson title"
                       required
                       value={newLessonData.title}
                       onChange={e => setNewLessonData({ ...newLessonData, title: e.target.value })}
@@ -1010,7 +1010,7 @@ export default function AdminDashboard({
                     <input
                       type="text"
                       className="input-control"
-                      placeholder="Short summary for curriculum syllabus..."
+                      placeholder="Brief lesson summary"
                       value={newLessonData.description}
                       onChange={e => setNewLessonData({ ...newLessonData, description: e.target.value })}
                     />
@@ -1022,7 +1022,7 @@ export default function AdminDashboard({
                     </label>
                     <textarea
                       className="input-control"
-                      placeholder="Full lesson content (supports Markdown, headings, code blocks, bullet points)..."
+                      placeholder="Full lesson content and study material (Markdown)"
                       rows={6}
                       value={newLessonData.content}
                       onChange={e => setNewLessonData({ ...newLessonData, content: e.target.value })}
@@ -1215,8 +1215,8 @@ export default function AdminDashboard({
                   value={settingsData.DEFAULT_AI_PROVIDER}
                   onChange={e => setSettingsData({ ...settingsData, DEFAULT_AI_PROVIDER: e.target.value })}
                 >
-                  <option value="ollama">Ollama (Qwen 2.5: 3B) - Local / Free</option>
-                  <option value="gemini">Google Gemini API - Cloud Frontier</option>
+                  <option value="ollama">Standard AI Engine (Fast & Private)</option>
+                  <option value="gemini">Cloud AI Engine (Advanced Cloud Model)</option>
                 </select>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>
                   Controls the default engine for students in the AI Tutor workspace.
@@ -1253,11 +1253,11 @@ export default function AdminDashboard({
             </form>
           </div>
 
-          {/* Quick Database Seed Box */}
+          {/* Sample Data Reset Box */}
           <div className="glass-panel" style={{ padding: 24, height: 'fit-content' }}>
-            <h4 style={{ fontSize: '1.05rem', marginBottom: 10 }}>Database Seeding & Reset</h4>
+            <h4 style={{ fontSize: '1.05rem', marginBottom: 10 }}>Platform Content Reset</h4>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 16 }}>
-              Quickly seed or refresh demo courses, lessons, and demo accounts (User Prabhat, User Alex, Platform Admin).
+              Reset or restore default courses, curriculum lessons, and sample accounts to the initial platform state.
             </p>
             <button
               className="btn btn-secondary"
@@ -1265,7 +1265,7 @@ export default function AdminDashboard({
               onClick={handleSeedData}
             >
               <RefreshCw size={15} color="#fbbf24" />
-              <span>Seed / Reset Demo Data</span>
+              <span>Restore Default Content</span>
             </button>
           </div>
         </div>

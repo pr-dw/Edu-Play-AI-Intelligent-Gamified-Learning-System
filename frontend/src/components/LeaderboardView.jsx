@@ -36,13 +36,13 @@ export default function LeaderboardView({ currentUser }) {
       }}>
         <div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
-            <span className="badge badge-xp">Gamification Arena</span>
+            <span className="badge badge-xp">Community Rankings</span>
           </div>
           <h1 style={{ fontSize: '2rem', marginBottom: 6 }}>
-            Top Users Leaderboard
+            Learner Leaderboard
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-            Earn XP by completing lessons, asking curiosity questions to the AI Tutor, and mastering courses!
+            Earn XP by completing lessons, interacting with your AI Tutor, and mastering courses!
           </p>
         </div>
 

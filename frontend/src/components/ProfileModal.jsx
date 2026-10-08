@@ -342,7 +342,7 @@ export default function ProfileModal({ isOpen, onClose, currentUser, onUpdateUse
                 className="input-control"
                 value={formData.first_name}
                 onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                placeholder="First name"
+                placeholder="Your first name"
                 required
               />
             </div>
@@ -355,7 +355,7 @@ export default function ProfileModal({ isOpen, onClose, currentUser, onUpdateUse
                 className="input-control"
                 value={formData.last_name}
                 onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                placeholder="Last name"
+                placeholder="Your last name"
               />
             </div>
           </div>
@@ -383,7 +383,7 @@ export default function ProfileModal({ isOpen, onClose, currentUser, onUpdateUse
                 className="input-control"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="user@example.com"
+                placeholder="Your email address"
                 required
               />
             </div>
@@ -399,7 +399,7 @@ export default function ProfileModal({ isOpen, onClose, currentUser, onUpdateUse
               rows={3}
               value={formData.bio}
               onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-              placeholder="Tell others about your interests, engineering focus, or learning goals..."
+              placeholder="Your personal bio and learning goals"
             />
           </div>
 

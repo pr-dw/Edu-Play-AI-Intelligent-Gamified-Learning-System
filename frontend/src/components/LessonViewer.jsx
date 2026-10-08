@@ -155,7 +155,7 @@ export default function LessonViewer({
       console.error('Tutor chat error:', err);
       let errMsg = err.message || 'Error communicating with AI Tutor.';
       if (provider === 'gemini' && !geminiApiKey) {
-        errMsg = 'Gemini API Key is required. Please set your key above or toggle to Ollama Qwen2.5:3B.';
+        errMsg = 'Cloud API Key is required. Please set your key above or switch to Standard AI.';
       }
       setTutorMessages(prev => [
         ...prev,
@@ -532,9 +532,9 @@ export default function LessonViewer({
                   setProvider('ollama');
                   localStorage.setItem('eduplay_preferred_provider', 'ollama');
                 }}
-                title="Local private Qwen2.5:3B"
+                title="Standard AI Assistant (Fast & Private)"
               >
-                🦙 Ollama
+                ⚡ Standard AI
               </button>
               <button
                 type="button"
@@ -544,9 +544,9 @@ export default function LessonViewer({
                   setProvider('gemini');
                   localStorage.setItem('eduplay_preferred_provider', 'gemini');
                 }}
-                title="Google Gemini Cloud API"
+                title="Advanced Cloud AI Assistant"
               >
-                ✨ Gemini
+                ✨ Cloud AI
               </button>
               {provider === 'gemini' && (
                 <button
@@ -554,7 +554,7 @@ export default function LessonViewer({
                   className="btn btn-secondary btn-xs"
                   onClick={() => setShowKeyInput(!showKeyInput)}
                   style={{ padding: '3px 6px' }}
-                  title="Configure Gemini API Key"
+                  title="Configure Cloud API Key"
                 >
                   <Settings size={12} />
                 </button>
@@ -577,7 +577,7 @@ export default function LessonViewer({
                 type="password"
                 className="input-control"
                 style={{ fontSize: '0.75rem', padding: '4px 8px' }}
-                placeholder="Gemini API Key..."
+                placeholder="Enter Cloud API Key"
                 value={geminiApiKey}
                 onChange={(e) => setGeminiApiKey(e.target.value)}
               />
@@ -665,7 +665,7 @@ export default function LessonViewer({
                 padding: '6px 10px',
               }}>
                 <RefreshCw size={14} className="animate-spin" color="var(--primary)" />
-                <span>Thinking using {provider === 'ollama' ? 'Qwen2.5:3B' : 'Gemini'}...</span>
+                <span>Thinking...</span>
               </div>
             )}
             <div ref={tutorMessagesEndRef} />
@@ -682,7 +682,7 @@ export default function LessonViewer({
               type="text"
               className="input-control"
               style={{ fontSize: '0.8rem', padding: '6px 10px', flex: 1 }}
-              placeholder="Ask questions about this lesson..."
+              placeholder="Ask a question about this lesson..."
               value={tutorInput}
               onChange={(e) => setTutorInput(e.target.value)}
               onKeyDown={(e) => {

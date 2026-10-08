@@ -28,7 +28,7 @@ export default function AITutorWorkspace({
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: "Hello! I'm your **EduPlay AI Personal Tutor**, powered by **LangChain**. I am strictly course-grounded to answer questions and resolve doubts exclusively for courses you are currently enrolled in or have completed. Please select your enrolled course above to start learning!",
+      content: "Hello! I'm your **EduPlay AI Personal Tutor**. I am here to help answer questions, explain concepts, and resolve doubts for courses you are enrolled in. Please select your enrolled course above to get started!",
       provider_used: 'system',
       created_at: new Date().toISOString(),
     }
@@ -183,7 +183,7 @@ export default function AITutorWorkspace({
       console.error('Tutor chat error:', err);
       let errMsg = err.message || 'An error occurred while contacting the AI Tutor.';
       if (provider === 'gemini' && !geminiApiKey) {
-        errMsg = 'Google Gemini API Key is required. Please click "Configure Gemini Key" above to provide your key, or toggle to "Ollama (Qwen 2.5: 3B)" for local offline inference.';
+        errMsg = 'Cloud API Key is required. Please click "Add API Key" above to provide your key, or switch to Standard AI.';
       }
       setMessages(prev => [
         ...prev,
@@ -241,15 +241,15 @@ export default function AITutorWorkspace({
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <h2 style={{ fontSize: '1.35rem' }}>AI Personal Tutor</h2>
-                <span className="badge badge-cyan" style={{ fontSize: '0.7rem' }}>LangChain Engine</span>
+                <span className="badge badge-cyan" style={{ fontSize: '0.7rem' }}>24/7 AI Mentor</span>
               </div>
               <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                Intelligent pedagogical assistance with dynamic LLM switching
+                Personalized study partner grounded in your course materials
               </p>
             </div>
           </div>
 
-          {/* Provider Toggle Pill (Ollama vs Gemini) */}
+          {/* Provider Toggle Pill (Standard vs Cloud) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{
               display: 'flex',
@@ -259,7 +259,7 @@ export default function AITutorWorkspace({
               border: '1px solid var(--border-subtle)',
               boxShadow: 'var(--shadow-card)',
             }}>
-              {/* Ollama Button */}
+              {/* Standard AI Button */}
               <button
                 type="button"
                 className={`btn btn-sm ${provider === 'ollama' ? 'btn-primary' : 'btn-secondary'}`}
@@ -269,7 +269,7 @@ export default function AITutorWorkspace({
                   localStorage.setItem('eduplay_preferred_provider', 'ollama');
                 }}
               >
-                <span>🦙 Ollama (Qwen 2.5: 3B)</span>
+                <span>⚡ Standard AI</span>
                 <span style={{
                   width: 8,
                   height: 8,
@@ -279,7 +279,7 @@ export default function AITutorWorkspace({
                 }} />
               </button>
 
-              {/* Gemini Button */}
+              {/* Cloud AI Button */}
               <button
                 type="button"
                 className={`btn btn-sm ${provider === 'gemini' ? 'btn-primary' : 'btn-secondary'}`}
@@ -289,7 +289,7 @@ export default function AITutorWorkspace({
                   localStorage.setItem('eduplay_preferred_provider', 'gemini');
                 }}
               >
-                <span>✨ Google Gemini API</span>
+                <span>✨ Cloud AI</span>
                 <span style={{
                   width: 8,
                   height: 8,
@@ -305,7 +305,7 @@ export default function AITutorWorkspace({
               <button
                 className="btn btn-secondary btn-sm"
                 onClick={() => setShowKeyInput(!showKeyInput)}
-                title="Configure Gemini API Key"
+                title="Configure Cloud API Key"
               >
                 <Settings size={14} />
                 <span>{geminiApiKey ? 'API Key Set' : 'Add API Key'}</span>
@@ -329,7 +329,7 @@ export default function AITutorWorkspace({
             <input
               type="password"
               className="input-control"
-              placeholder="Paste Google Gemini API Key (e.g. AIzaSy...)"
+              placeholder="Enter Cloud API Key"
               value={geminiApiKey}
               onChange={(e) => setGeminiApiKey(e.target.value)}
             />
@@ -406,8 +406,8 @@ export default function AITutorWorkspace({
 
           {/* Active Model Pill */}
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-            Active Engine: <strong style={{ color: provider === 'ollama' ? '#38bdf8' : '#a855f7' }}>
-              {provider === 'ollama' ? 'Local Qwen 2.5 (3B)' : 'Google Gemini API'}
+            Active Assistant: <strong style={{ color: provider === 'ollama' ? '#38bdf8' : '#a855f7' }}>
+              {provider === 'ollama' ? 'Standard AI (Fast & Private)' : 'Advanced Cloud AI'}
             </strong>
           </div>
         </div>
@@ -535,7 +535,7 @@ export default function AITutorWorkspace({
               <RefreshCw size={18} className="animate-spin" color="#fff" />
             </div>
             <div>
-              <span>Thinking using {provider === 'ollama' ? 'local Qwen 2.5: 3B' : 'Google Gemini'}...</span>
+              <span>Thinking...</span>
             </div>
           </div>
         )}
@@ -574,10 +574,10 @@ export default function AITutorWorkspace({
           className="input-control"
           style={{ border: 'none', background: 'transparent', boxShadow: 'none', padding: '8px 4px' }}
           placeholder={courses.length === 0 
-            ? "⚠️ Enroll in a course first to ask questions..." 
+            ? "Enroll in a course first to ask questions..." 
             : !selectedCourseId 
-            ? "⚠️ Please select an enrolled course from the selector above..." 
-            : `Ask questions grounded in this course (${provider === 'ollama' ? 'Qwen2.5:3B' : 'Gemini'})...`}
+            ? "Please select an enrolled course from the selector above..." 
+            : "Ask a question about this course..."}
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyDown={(e) => {

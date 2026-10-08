@@ -140,7 +140,7 @@ export default function CourseCatalog({ currentUser, onSelectCourse, onSelectLes
             </span>
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: 1.6 }}>
-            Explore industry-crafted curriculums with live lesson grounding. Ask the LangChain AI Tutor anytime for analogies, step-by-step doubt solving, and earn verified certificates on completion!
+            Explore industry-crafted curriculums with interactive lessons. Ask your Personal AI Tutor anytime for analogies, explanations, and step-by-step guidance, and earn verified certificates on completion!
           </p>
         </div>
 
@@ -158,12 +158,12 @@ export default function CourseCatalog({ currentUser, onSelectCourse, onSelectLes
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>AI Grounding</span>
-              <span className="badge badge-cyan">LangChain</span>
+              <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>AI Mentoring</span>
+              <span className="badge badge-cyan">24/7 Guidance</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>AI Models</span>
-              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--secondary)' }}>Qwen 2.5 & Gemini</span>
+              <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Study Support</span>
+              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--secondary)' }}>Personalized</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Credentials</span>
@@ -225,7 +225,7 @@ export default function CourseCatalog({ currentUser, onSelectCourse, onSelectLes
                 type="text"
                 className="input-control"
                 style={{ paddingLeft: 42 }}
-                placeholder="Search topics, LLMs, React..."
+                placeholder="Search courses by title or topic..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
