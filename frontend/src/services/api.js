@@ -7,8 +7,9 @@ function getAuthHeader() {
 
 async function request(endpoint, options = {}) {
   const url = `${BASE_URL}${endpoint}`;
+  const isFormData = options.body instanceof FormData;
   const headers = {
-    'Content-Type': 'application/json',
+    ...(!isFormData ? { 'Content-Type': 'application/json' } : {}),
     ...getAuthHeader(),
     ...(options.headers || {}),
   };
@@ -74,6 +75,15 @@ export const api = {
       }
     },
     getProfile: () => request('/users/profile/'),
+    updateProfile: async (data) => {
+      const isFormData = data instanceof FormData;
+      const res = await request('/users/profile/', {
+        method: 'PATCH',
+        body: isFormData ? data : JSON.stringify(data),
+      });
+      localStorage.setItem('eduplay_user', JSON.stringify(res));
+      return res;
+    },
     getStats: () => request('/users/stats/'),
     getLeaderboard: () => request('/users/leaderboard/'),
   },
@@ -85,7 +95,10 @@ export const api = {
       return request(`/courses/${query ? `?${query}` : ''}`);
     },
     categories: () => request('/courses/categories/'),
-    myCourses: () => request('/courses/my-courses/'),
+    myCourses: (params = {}) => {
+      const query = new URLSearchParams(params).toString();
+      return request(`/courses/my-courses/${query ? `?${query}` : ''}`);
+    },
     detail: (id) => request(`/courses/${id}/`),
     enroll: (id) => request(`/courses/${id}/enroll/`, { method: 'POST' }),
     getLesson: (id) => request(`/courses/lessons/${id}/`),
@@ -109,6 +122,27 @@ export const api = {
     claim: (courseId) => request(`/certificates/claim/${courseId}/`, { method: 'POST' }),
     verify: (certId) => request(`/certificates/verify/${encodeURIComponent(certId)}/`),
     getPdfDownloadUrl: (certId) => `${BASE_URL}/certificates/download/${encodeURIComponent(certId)}/`,
+    downloadPdf: async (certId) => {
+      const url = `${BASE_URL}/certificates/download/${encodeURIComponent(certId)}/`;
+      const res = await fetch(url, {
+        headers: {
+          ...getAuthHeader(),
+        }
+      });
+      if (!res.ok) {
+        throw new Error(`Failed to download certificate PDF (${res.status})`);
+      }
+      const blob = await res.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = `EduPlay_Certificate_${certId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1000);
+      return true;
+    },
   },
 
   // 5. Administration

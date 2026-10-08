@@ -4,25 +4,36 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User
 
 class UserSerializer(serializers.ModelSerializer):
+    avatar_image_url = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name',
-            'role', 'points', 'level', 'bio', 'avatar', 'date_joined'
+            'role', 'points', 'level', 'bio', 'avatar', 'avatar_image',
+            'avatar_image_url', 'date_joined'
         ]
-        read_only_fields = ['id', 'points', 'level', 'date_joined']
+        read_only_fields = ['id', 'role', 'points', 'level', 'date_joined']
+
+    def get_avatar_image_url(self, obj):
+        if obj.avatar_image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.avatar_image.url)
+            return obj.avatar_image.url
+        return None
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=6)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'first_name', 'last_name', 'role', 'avatar']
+        fields = ['username', 'email', 'password', 'first_name', 'last_name', 'avatar']
 
     def create(self, validated_data):
         password = validated_data.pop('password')
-        if 'role' not in validated_data or validated_data['role'] not in ('user', 'admin'):
-            validated_data['role'] = 'user'
+        # All self-registered users are strictly 'user' role - no admin registration allowed
+        validated_data['role'] = 'user'
         user = User(**validated_data)
         user.set_password(password)
         # Give initial welcome XP

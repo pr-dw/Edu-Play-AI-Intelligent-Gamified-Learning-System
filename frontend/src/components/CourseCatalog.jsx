@@ -9,29 +9,47 @@ export default function CourseCatalog({ currentUser, onSelectCourse, onSelectLes
   const [selectedLevel, setSelectedLevel] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState('all'); // 'all' or 'my'
+  const [viewMode, setViewMode] = useState('all'); // 'all', 'enrolled', or 'completed'
 
   const loadData = async () => {
     setLoading(true);
     try {
+      const isEnrolledMode = (viewMode === 'enrolled' || viewMode === 'completed') && currentUser;
       const [catsRes, coursesRes] = await Promise.all([
         api.courses.categories(),
-        viewMode === 'my' && currentUser ? api.courses.myCourses() : api.courses.list({
-          category: selectedCategory,
-          level: selectedLevel,
-          search: searchQuery,
-        }),
+        isEnrolledMode 
+          ? api.courses.myCourses({ completed: viewMode === 'completed' ? 'true' : 'false' }) 
+          : api.courses.list({
+              category: selectedCategory,
+              level: selectedLevel,
+              search: searchQuery,
+            }),
       ]);
       setCategories(catsRes);
 
-      if (viewMode === 'my') {
-        // Normalize myCourses response
-        setCourses(coursesRes.map(e => ({
+      if (isEnrolledMode) {
+        let list = coursesRes.map(e => ({
           ...e.course,
           progress_percentage: e.progress_percentage,
           is_completed: e.is_completed,
           is_enrolled: true,
-        })));
+        }));
+        if (viewMode === 'enrolled') {
+          list = list.filter(c => !c.is_completed && c.progress_percentage < 100);
+        } else if (viewMode === 'completed') {
+          list = list.filter(c => c.is_completed || c.progress_percentage >= 100);
+        }
+        if (selectedCategory) {
+          list = list.filter(c => c.category?.slug === selectedCategory);
+        }
+        if (selectedLevel) {
+          list = list.filter(c => c.level === selectedLevel);
+        }
+        if (searchQuery.trim()) {
+          const q = searchQuery.toLowerCase();
+          list = list.filter(c => c.title?.toLowerCase().includes(q) || c.description?.toLowerCase().includes(q));
+        }
+        setCourses(list);
       } else {
         setCourses(coursesRes);
       }
@@ -44,7 +62,7 @@ export default function CourseCatalog({ currentUser, onSelectCourse, onSelectLes
 
   useEffect(() => {
     loadData();
-  }, [selectedCategory, selectedLevel, searchQuery, viewMode]);
+  }, [selectedCategory, selectedLevel, searchQuery, viewMode, currentUser]);
 
   return (
     <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 16px 40px 16px' }}>
@@ -113,21 +131,31 @@ export default function CourseCatalog({ currentUser, onSelectCourse, onSelectLes
       {/* Filter and Search Bar */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 28 }}>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
-          {/* Mode Switcher: All Courses vs My Enrolled */}
-          <div style={{ display: 'flex', gap: 8, background: 'var(--bg-surface-elevated)', padding: 4, borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
+          {/* Mode Switcher: All Courses vs Currently Enrolled vs Completed Courses */}
+          <div style={{ display: 'flex', gap: 6, background: 'var(--bg-surface-elevated)', padding: 4, borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', flexWrap: 'wrap' }}>
             <button
               className={`btn ${viewMode === 'all' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
               onClick={() => setViewMode('all')}
             >
-              All Courses ({courses.length})
+              All Courses
             </button>
             {currentUser && (
-              <button
-                className={`btn ${viewMode === 'my' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
-                onClick={() => setViewMode('my')}
-              >
-                My Enrolled Courses
-              </button>
+              <>
+                <button
+                  className={`btn ${viewMode === 'enrolled' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
+                  onClick={() => setViewMode('enrolled')}
+                >
+                  <Clock size={14} />
+                  <span>Currently Enrolled</span>
+                </button>
+                <button
+                  className={`btn ${viewMode === 'completed' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
+                  onClick={() => setViewMode('completed')}
+                >
+                  <CheckCircle2 size={14} color="#10b981" />
+                  <span>Completed Courses</span>
+                </button>
+              </>
             )}
           </div>
 
@@ -189,8 +217,12 @@ export default function CourseCatalog({ currentUser, onSelectCourse, onSelectLes
         <div className="glass-panel" style={{ textAlign: 'center', padding: '50px 20px' }}>
           <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>🔍</div>
           <h3>No courses found</h3>
-          <p style={{ color: 'var(--text-muted)', marginTop: 6 }}>
-            {viewMode === 'my' ? "You haven't enrolled in any courses yet. Browse all courses above!" : "Try adjusting your search or category filters."}
+          <p style={{ color: 'var(--text-muted)', marginTop: 6, maxWidth: 520, margin: '6px auto 0 auto' }}>
+            {viewMode === 'enrolled' 
+              ? "You don't have any in-progress enrolled courses right now. Pick an open course above to start learning!" 
+              : viewMode === 'completed' 
+              ? "You haven't completed any courses yet. Finish 100% of the lessons in an enrolled course to see it here and unlock your verified certificate!" 
+              : "Try adjusting your search or category filters."}
           </p>
         </div>
       ) : (

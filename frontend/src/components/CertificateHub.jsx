@@ -14,6 +14,21 @@ export default function CertificateHub({ currentUser, onRefreshUser, initialClai
   const [claimableCourses, setClaimableCourses] = useState([]);
   const [claiming, setClaiming] = useState(false);
   const [claimMessage, setClaimMessage] = useState(null);
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownloadPdf = async (certId) => {
+    if (!certId || downloading) return;
+    try {
+      setDownloading(true);
+      await api.certificates.downloadPdf(certId);
+    } catch (err) {
+      console.error('Download error:', err);
+      // Fallback: try direct window open
+      window.open(api.certificates.getPdfDownloadUrl(certId), '_blank');
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   const loadCertificates = async () => {
     if (!currentUser) {
@@ -366,16 +381,16 @@ export default function CertificateHub({ currentUser, onRefreshUser, initialClai
 
                   {/* Actions: Download PDF */}
                   <div style={{ marginTop: 24, display: 'flex', justifyContent: 'center', gap: 14 }}>
-                    <a
-                      href={api.certificates.getPdfDownloadUrl(selectedCert.certificate_id)}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      type="button"
+                      onClick={() => handleDownloadPdf(selectedCert.certificate_id)}
+                      disabled={downloading}
                       className="btn btn-gold"
-                      style={{ textDecoration: 'none' }}
+                      style={{ cursor: downloading ? 'wait' : 'pointer' }}
                     >
                       <Download size={16} />
-                      <span>Download Official PDF Certificate</span>
-                    </a>
+                      <span>{downloading ? 'Downloading PDF...' : 'Download Official PDF Certificate'}</span>
+                    </button>
                   </div>
                 </div>
               )}
@@ -449,6 +464,20 @@ export default function CertificateHub({ currentUser, onRefreshUser, initialClai
                   <div><strong>Date Issued:</strong> {new Date(verifyResult.certificate.issue_date).toLocaleDateString()}</div>
                   <div><strong>Certificate ID:</strong> {verifyResult.certificate.certificate_id}</div>
                   <div><strong>Integrity:</strong> 100% Cryptographically Valid</div>
+                </div>
+              )}
+
+              {verifyResult.valid && verifyResult.certificate && (
+                <div style={{ marginTop: 16, textAlign: 'center' }}>
+                  <button
+                    type="button"
+                    onClick={() => handleDownloadPdf(verifyResult.certificate.certificate_id)}
+                    disabled={downloading}
+                    className="btn btn-gold btn-sm"
+                  >
+                    <Download size={14} />
+                    <span>{downloading ? 'Downloading...' : 'Download Verified PDF Certificate'}</span>
+                  </button>
                 </div>
               )}
             </div>

@@ -12,6 +12,7 @@ class User(AbstractUser):
     level = models.PositiveIntegerField(default=1, help_text="Calculated based on XP")
     bio = models.TextField(blank=True, default="Passionate lifelong learner exploring new frontiers.")
     avatar = models.CharField(max_length=50, blank=True, default="🚀", help_text="Avatar emoji or icon")
+    avatar_image = models.ImageField(upload_to='avatars/', null=True, blank=True, help_text="Uploaded profile picture")
 
     def add_points(self, amount: int):
         self.points += amount

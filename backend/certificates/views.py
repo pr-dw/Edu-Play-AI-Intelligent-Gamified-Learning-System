@@ -78,7 +78,7 @@ class VerifyCertificateView(APIView):
         })
 
 class DownloadCertificatePDFView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def get(self, request, cert_id):
         cert = get_object_or_404(Certificate, certificate_id__iexact=cert_id)

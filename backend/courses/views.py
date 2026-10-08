@@ -116,4 +116,11 @@ class MyCoursesView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Enrollment.objects.filter(user=self.request.user).select_related('course', 'course__category', 'course__author')
+        queryset = Enrollment.objects.filter(user=self.request.user).select_related('course', 'course__category', 'course__author')
+        completed = self.request.query_params.get('completed')
+        if completed is not None:
+            if completed.lower() in ('true', '1', 'yes'):
+                queryset = queryset.filter(is_completed=True)
+            elif completed.lower() in ('false', '0', 'no'):
+                queryset = queryset.filter(is_completed=False)
+        return queryset

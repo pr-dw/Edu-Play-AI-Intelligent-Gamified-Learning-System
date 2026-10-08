@@ -8,6 +8,7 @@ import AITutorWorkspace from './components/AITutorWorkspace';
 import CertificateHub from './components/CertificateHub';
 import LeaderboardView from './components/LeaderboardView';
 import AdminDashboard from './components/AdminDashboard';
+import ProfileModal from './components/ProfileModal';
 import { api } from './services/api';
 
 export default function App() {
@@ -15,6 +16,7 @@ export default function App() {
   const [userStats, setUserStats] = useState(null);
   const [activeTab, setActiveTab] = useState('courses'); // 'courses', 'tutor', 'certificates', 'leaderboard', 'admin'
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
   // Multi-Theme State (Default: 'light')
   const [currentTheme, setCurrentTheme] = useState(() => {
@@ -120,6 +122,7 @@ export default function App() {
         onOpenAuth={() => setAuthModalOpen(true)}
         onLogout={handleLogout}
         onOpenTutor={() => setActiveTab('tutor')}
+        onOpenProfile={() => setProfileModalOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -196,6 +199,17 @@ export default function App() {
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
         onAuthSuccess={handleAuthSuccess}
+      />
+
+      {/* User Profile Customization Modal */}
+      <ProfileModal
+        isOpen={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
+        currentUser={currentUser}
+        onUpdateUser={(updated) => {
+          setCurrentUser(updated);
+          refreshUser();
+        }}
       />
 
       {/* Footer */}

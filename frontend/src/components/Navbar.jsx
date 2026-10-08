@@ -10,10 +10,13 @@ export default function Navbar({
   onSelectTheme,
   onOpenAuth,
   onLogout,
-  onOpenTutor
+  onOpenTutor,
+  onOpenProfile,
 }) {
   const [themeDropdownOpen, setThemeDropdownOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const profileDropdownRef = useRef(null);
 
   const themes = [
     { id: 'light', name: 'Light (Default)', icon: '☀️', color: '#f59e0b' },
@@ -29,6 +32,9 @@ export default function Navbar({
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setThemeDropdownOpen(false);
+      }
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(e.target)) {
+        setProfileDropdownOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -218,50 +224,233 @@ export default function Navbar({
               </div>
             </div>
 
-            {/* User Profile Pill */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              background: 'var(--bg-surface)',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: 'var(--radius-pill)',
-              padding: '4px 12px 4px 6px',
-            }}>
-              <div style={{
-                width: 32,
-                height: 32,
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.1rem',
-                color: '#fff'
-              }}>
-                {currentUser.avatar || '⚡'}
-              </div>
-              <div style={{ lineHeight: 1.2 }}>
-                <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{currentUser.username}</div>
-                <span className="badge badge-role" style={{ fontSize: '0.6rem', padding: '1px 5px' }}>
-                  {currentUser.role}
-                </span>
-              </div>
+            {/* User Profile Pill with Interactive Dropdown */}
+            <div ref={profileDropdownRef} style={{ position: 'relative' }}>
               <button
-                onClick={onLogout}
-                title="Log out"
+                type="button"
+                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                 style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--text-muted)',
-                  cursor: 'pointer',
-                  marginLeft: 4,
                   display: 'flex',
-                  alignItems: 'center'
+                  alignItems: 'center',
+                  gap: 10,
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: 'var(--radius-pill)',
+                  padding: '4px 12px 4px 6px',
+                  cursor: 'pointer',
+                  color: 'inherit',
+                  transition: 'all 0.15s ease',
+                  boxShadow: profileDropdownOpen ? '0 0 0 2px var(--primary)' : 'none',
                 }}
               >
-                <LogOut size={16} />
+                <div style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '1.1rem',
+                  color: '#fff',
+                  overflow: 'hidden',
+                  flexShrink: 0
+                }}>
+                  {currentUser.avatar_image_url || currentUser.avatar_image ? (
+                    <img 
+                      src={currentUser.avatar_image_url || currentUser.avatar_image} 
+                      alt="Avatar" 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                    />
+                  ) : (
+                    currentUser.avatar || '⚡'
+                  )}
+                </div>
+                <div style={{ lineHeight: 1.2, textAlign: 'left' }}>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>
+                    {currentUser.first_name ? `${currentUser.first_name} ${currentUser.last_name || ''}`.trim() : currentUser.username}
+                  </div>
+                  <span className="badge badge-role" style={{ fontSize: '0.6rem', padding: '1px 5px' }}>
+                    {currentUser.role}
+                  </span>
+                </div>
+                <ChevronDown size={14} color="var(--text-muted)" style={{ transform: profileDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
               </button>
+
+              {/* Profile Dropdown Menu */}
+              {profileDropdownOpen && (
+                <div className="glass-panel animate-slide-in" style={{
+                  position: 'absolute',
+                  top: 'calc(100% + 8px)',
+                  right: 0,
+                  width: 250,
+                  padding: 12,
+                  zIndex: 200,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 8,
+                  boxShadow: 'var(--shadow-card-hover)',
+                  border: '1px solid var(--border-glow)'
+                }}>
+                  {/* User Profile Card Header */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    padding: '8px 6px 12px 6px',
+                    borderBottom: '1px solid var(--border-subtle)'
+                  }}>
+                    <div style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '1.4rem',
+                      color: '#fff',
+                      overflow: 'hidden',
+                      flexShrink: 0
+                    }}>
+                      {currentUser.avatar_image_url || currentUser.avatar_image ? (
+                        <img 
+                          src={currentUser.avatar_image_url || currentUser.avatar_image} 
+                          alt="Avatar" 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                        />
+                      ) : (
+                        currentUser.avatar || '⚡'
+                      )}
+                    </div>
+                    <div style={{ overflow: 'hidden' }}>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {currentUser.first_name ? `${currentUser.first_name} ${currentUser.last_name || ''}`.trim() : currentUser.username}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        @{currentUser.username}
+                      </div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--secondary)', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {currentUser.email}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Menu Items */}
+                  <button
+                    onClick={() => {
+                      setProfileDropdownOpen(false);
+                      onOpenProfile();
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 10,
+                      padding: '8px 12px',
+                      borderRadius: 'var(--radius-sm)',
+                      border: 'none',
+                      background: 'transparent',
+                      color: 'var(--text-primary)',
+                      cursor: 'pointer',
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      textAlign: 'left',
+                      transition: 'background 0.15s ease',
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-surface-elevated)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                  >
+                    <User size={16} color="var(--primary)" />
+                    <span>My Profile</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setProfileDropdownOpen(false);
+                      setActiveTab('certificates');
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 10,
+                      padding: '8px 12px',
+                      borderRadius: 'var(--radius-sm)',
+                      border: 'none',
+                      background: 'transparent',
+                      color: 'var(--text-primary)',
+                      cursor: 'pointer',
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      textAlign: 'left',
+                      transition: 'background 0.15s ease',
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-surface-elevated)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                  >
+                    <Award size={16} color="var(--accent-gold)" />
+                    <span>My Certificates</span>
+                  </button>
+
+                  {(currentUser.role === 'admin' || currentUser.is_staff) && (
+                    <button
+                      onClick={() => {
+                        setProfileDropdownOpen(false);
+                        setActiveTab('admin');
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        padding: '8px 12px',
+                        borderRadius: 'var(--radius-sm)',
+                        border: 'none',
+                        background: 'transparent',
+                        color: 'var(--text-primary)',
+                        cursor: 'pointer',
+                        fontSize: '0.85rem',
+                        fontWeight: 600,
+                        textAlign: 'left',
+                        transition: 'background 0.15s ease',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-surface-elevated)'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <Shield size={16} color="#f87171" />
+                      <span>Admin Console</span>
+                    </button>
+                  )}
+
+                  <div style={{ height: 1, background: 'var(--border-subtle)', margin: '4px 0' }} />
+
+                  {/* Log Out Button inside dropdown */}
+                  <button
+                    onClick={() => {
+                      setProfileDropdownOpen(false);
+                      onLogout();
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 10,
+                      padding: '8px 12px',
+                      borderRadius: 'var(--radius-sm)',
+                      border: 'none',
+                      background: 'transparent',
+                      color: 'var(--danger)',
+                      cursor: 'pointer',
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      textAlign: 'left',
+                      transition: 'background 0.15s ease',
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                  >
+                    <LogOut size={16} color="var(--danger)" />
+                    <span>Log Out</span>
+                  </button>
+                </div>
+              )}
             </div>
           </>
         ) : (
