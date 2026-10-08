@@ -46,15 +46,41 @@ class ChatWithTutorView(APIView):
                 'error': f"Access restricted. You must be enrolled in '{course.title}' to consult the AI Tutor."
             }, status=status.HTTP_403_FORBIDDEN)
 
-        lessons_outline = "\n".join([f"- Lesson {l.sequence_order}: {l.title} ({l.description})" for l in course.lessons.all()])
-        course_context = f"Course: {course.title}\nCategory: {course.category.name if course.category else 'General'}\nDescription: {course.description}\nSyllabus Outline:\n{lessons_outline}"
+        all_lessons = list(course.lessons.all().order_by('sequence_order'))
+        total_lessons = len(all_lessons)
+        lessons_outline = "\n".join([
+            f"- Lesson {l.sequence_order}: {l.title} ({l.description or 'No summary'})"
+            for l in all_lessons
+        ])
+
+        course_context = (
+            f"Course Title: {course.title}\n"
+            f"Total Lessons in Course: {total_lessons}\n"
+            f"Category: {course.category.name if course.category else 'General'}\n"
+            f"Description: {course.description}\n"
+            f"Syllabus Outline:\n{lessons_outline if lessons_outline else 'No lessons in syllabus'}"
+        )
 
         lesson = None
         lesson_context = None
         if lesson_id:
             lesson = Lesson.objects.filter(pk=lesson_id, course=course).first()
             if lesson:
-                lesson_context = f"Active Lesson {lesson.sequence_order}: {lesson.title}\nLesson Content:\n{lesson.content}"
+                # Determine next lesson availability in the course sequence
+                next_lesson = course.lessons.filter(sequence_order__gt=lesson.sequence_order).order_by('sequence_order').first()
+                if next_lesson:
+                    upcoming_info = f"Lesson {next_lesson.sequence_order}: '{next_lesson.title}'"
+                else:
+                    if total_lessons <= 1:
+                        upcoming_info = "NONE (This course consists of ONLY 1 single lesson. There is NO next lesson)."
+                    else:
+                        upcoming_info = "NONE (This is the final lesson of the course. There are no further lessons)."
+
+                lesson_context = (
+                    f"Active Lesson: Lesson {lesson.sequence_order} of {total_lessons} ('{lesson.title}')\n"
+                    f"Next Lesson in Syllabus: {upcoming_info}\n"
+                    f"Active Lesson Content:\n{lesson.content}"
+                )
 
         # Retrieve or create session
         session = None

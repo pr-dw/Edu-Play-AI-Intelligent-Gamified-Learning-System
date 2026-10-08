@@ -1,4 +1,5 @@
 import os
+import re
 import logging
 from typing import Dict, Any, List, Optional
 from django.conf import settings
@@ -95,10 +96,22 @@ class AITutorEngine:
         else:
             raise ValueError(f"Unsupported AI Provider '{provider}'. Choose 'ollama' or 'gemini'.")
 
+    def clean_ai_response(self, text: str) -> str:
+        """Cleans up formatting artifacts from AI models (stray backslashes, literal \n, etc.)"""
+        if not text:
+            return ""
+        cleaned = text
+        # Convert literal '\n' string to actual newline if returned by raw JSON
+        cleaned = cleaned.replace('\\r\\n', '\n').replace('\\n', '\n')
+        # Remove escaped backslashes before markdown characters like \*, \_, \[, \], \(, \)
+        cleaned = re.sub(r'\\([*_\[\]()#`\-+~])', r'\1', cleaned)
+        # Strip trailing/leading extra whitespace
+        return cleaned.strip()
+
     def build_system_prompt(self, course_context: Optional[str], lesson_context: Optional[str], mode: str) -> str:
         mode_instructions = {
-            'explain': "Focus on explaining concepts in intuitive, clear language with relatable everyday analogies.",
-            'summarize': "Provide a sharp, well-structured executive summary and bullet points of the key learning takeaways.",
+            'explain': "Focus on explaining concepts in intuitive, clear language with relatable everyday analogies. Address the current topic directly without rambling.",
+            'summarize': "Provide a sharp, well-structured executive summary and bullet points of the key takeaways of the current lesson. Focus exclusively on the content of this lesson. DO NOT speculate on or invent future lessons, and DO NOT append unsolicited 'what we will study next' previews.",
             'examples': "Provide practical, step-by-step code or real-world application examples demonstrating the concept in action.",
             'quiz_hint': "Act as a Socratic tutor! Give a gentle clue, conceptual guiding hint, or practice question without revealing the answer directly.",
             'doubt_solver': "Break down the student's question systematically, explain the 'why' behind each point, and offer guidance on how to avoid common pitfalls.",
@@ -128,8 +141,16 @@ CRITICAL RULES & SCOPE ENFORCEMENT:
 2. DISALLOW GENERAL QUESTIONS: DO NOT answer generic questions, general chatter, unrelated trivia, or off-topic inquiries that do not relate to this enrolled course.
 3. If the student asks an off-topic or general question, politely and concisely refuse:
    "I am your EduPlay AI Tutor dedicated to this course curriculum. I can only answer questions and resolve doubts related to this course. Please ask a question related to this curriculum!"
-4. Professional, supportive, and pedagogically sound tone.
-5. Format answers using clear Markdown with bullet points and syntax-highlighted code blocks where appropriate.
+4. ACCURACY OF COURSE STRUCTURE & NO HALLUCINATING FUTURE LESSONS:
+   - Carefully check the Course Curriculum and the "Next Lesson in Syllabus" status provided above.
+   - If the course only has 1 lesson, or if the next lesson is listed as NONE, NEVER state "In the next lesson we will study...", "What's Next in Lesson 2", or invent upcoming topics that do not exist in the curriculum.
+   - When asked to summarize or explain a lesson, deliver ONLY what was requested. Do NOT append unprompted teasers or speculations about future lessons or modules.
+   - If the student is on the final or only lesson, you may congratulate them on completing this lesson or suggest testing their knowledge, but NEVER invent nonexistent lessons.
+5. CLEAN, POLISHED MARKDOWN FORMATTING:
+   - Format answers using standard, clean Markdown with bold keywords, clear bullet points, and syntax-highlighted code blocks.
+   - Do not output backslash-escaped characters or raw LaTeX delimiters unless explicitly writing mathematical formulas.
+   - Never write raw asterisk walls, stray slashes, or messy characters.
+6. Professional, supportive, and pedagogically sound tone.
 """
         return system_prompt
 
@@ -166,7 +187,8 @@ CRITICAL RULES & SCOPE ENFORCEMENT:
         prompt = ChatPromptTemplate.from_messages(messages)
         chain = prompt | llm | StrOutputParser()
 
-        response_text = chain.invoke({})
+        raw_response = chain.invoke({})
+        response_text = self.clean_ai_response(raw_response)
 
         return {
             'content': response_text,
@@ -174,5 +196,6 @@ CRITICAL RULES & SCOPE ENFORCEMENT:
             'model_name': model_name,
             'mode': mode,
         }
+
 
 tutor_engine = AITutorEngine()

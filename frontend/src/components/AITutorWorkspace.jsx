@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Bot, Send, Sparkles, BookOpen, Settings, Check, AlertCircle, RefreshCw, Layers, Lightbulb, FileText, Code, HelpCircle, MessageSquare } from 'lucide-react';
 import { api } from '../services/api';
+import MarkdownRenderer from './MarkdownRenderer';
 
 export default function AITutorWorkspace({
   currentUser,
@@ -494,11 +495,11 @@ export default function AITutorWorkspace({
                   )}
                 </div>
 
-                <div className="markdown-body" style={{ fontSize: '0.925rem', lineHeight: 1.6 }}>
-                  {msg.content.split('\n').map((line, lIdx) => (
-                    <p key={lIdx} style={{ margin: '0 0 6px 0' }}>{line}</p>
-                  ))}
-                </div>
+                <MarkdownRenderer
+                  content={msg.content}
+                  isUser={isUser}
+                  style={{ fontSize: '0.925rem', lineHeight: 1.6 }}
+                />
               </div>
 
               {isUser && (

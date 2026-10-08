@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { api } from '../services/api';
+import MarkdownRenderer from './MarkdownRenderer';
 
 export default function LessonViewer({
   lessonId,
@@ -170,57 +171,9 @@ export default function LessonViewer({
   };
 
   // Markdown renderer for lesson content and tutor responses
-  const renderMarkdown = (text) => {
+  const renderMarkdown = (text, isUser = false) => {
     if (!text) return null;
-    const lines = text.split('\n');
-    const elements = [];
-    let inCodeBlock = false;
-    let codeBuffer = [];
-
-    lines.forEach((line, idx) => {
-      if (line.startsWith('```')) {
-        if (inCodeBlock) {
-          elements.push(
-            <pre key={`code-${idx}`} style={{
-              background: 'rgba(0, 0, 0, 0.4)',
-              padding: '12px 16px',
-              borderRadius: 8,
-              border: '1px solid var(--border-subtle)',
-              overflowX: 'auto',
-              fontSize: '0.85rem'
-            }}>
-              <code>{codeBuffer.join('\n')}</code>
-            </pre>
-          );
-          codeBuffer = [];
-          inCodeBlock = false;
-        } else {
-          inCodeBlock = true;
-        }
-        return;
-      }
-
-      if (inCodeBlock) {
-        codeBuffer.push(line);
-        return;
-      }
-
-      if (line.startsWith('# ')) {
-        elements.push(<h1 key={idx} style={{ fontSize: '1.75rem', marginTop: 18, marginBottom: 12 }}>{line.substring(2)}</h1>);
-      } else if (line.startsWith('## ')) {
-        elements.push(<h2 key={idx} style={{ fontSize: '1.4rem', marginTop: 16, marginBottom: 10 }}>{line.substring(3)}</h2>);
-      } else if (line.startsWith('### ')) {
-        elements.push(<h3 key={idx} style={{ fontSize: '1.15rem', marginTop: 14, marginBottom: 8 }}>{line.substring(4)}</h3>);
-      } else if (line.startsWith('- ')) {
-        elements.push(<li key={idx} style={{ marginLeft: 20, marginBottom: 4 }}>{line.substring(2)}</li>);
-      } else if (line.trim() === '') {
-        elements.push(<div key={idx} style={{ height: 10 }} />);
-      } else {
-        elements.push(<p key={idx} style={{ lineHeight: 1.6, marginBottom: 8 }}>{line}</p>);
-      }
-    });
-
-    return elements;
+    return <MarkdownRenderer content={text} isUser={isUser} />;
   };
 
   if (loading) {
@@ -698,7 +651,7 @@ export default function LessonViewer({
                   border: msg.role === 'user' ? 'none' : '1px solid var(--border-subtle)',
                 }}
               >
-                {renderMarkdown(msg.content)}
+                {renderMarkdown(msg.content, msg.role === 'user')}
               </div>
             ))}
 
