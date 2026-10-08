@@ -162,6 +162,7 @@ class AdminCourseListView(APIView):
         category_name = request.data.get('category', 'Technology')
         level = request.data.get('level', 'Beginner')
         xp_reward = int(request.data.get('xp_reward', 500))
+        lessons_data = request.data.get('lessons', [])
 
         if not title:
             return Response({'error': 'Course title is required.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -177,9 +178,27 @@ class AdminCourseListView(APIView):
             is_published=True
         )
 
+        # Create any initial lessons provided
+        created_lessons_count = 0
+        if isinstance(lessons_data, list):
+            for idx, l in enumerate(lessons_data, 1):
+                l_title = l.get('title')
+                if l_title:
+                    Lesson.objects.create(
+                        course=course,
+                        title=l_title,
+                        sequence_order=l.get('sequence_order', idx),
+                        description=l.get('description', ''),
+                        content=l.get('content', f"Content for {l_title}"),
+                        duration_minutes=int(l.get('duration_minutes', 15)),
+                        xp_reward=int(l.get('xp_reward', 50))
+                    )
+                    created_lessons_count += 1
+
         return Response({
-            'message': f"Course '{course.title}' created successfully.",
+            'message': f"Course '{course.title}' created successfully with {created_lessons_count} lesson(s).",
             'course_id': course.id,
+            'lessons_count': created_lessons_count,
         }, status=status.HTTP_201_CREATED)
 
     def patch(self, request):
@@ -197,6 +216,114 @@ class AdminCourseListView(APIView):
             return Response({'message': f"Course '{course.title}' status updated."})
         except Course.DoesNotExist:
             return Response({'error': 'Course not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+class AdminCourseDetailView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, course_id):
+        if request.user.role != 'admin' and not request.user.is_staff:
+            return Response({'error': 'Administrative privileges required.'}, status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            course = Course.objects.select_related('category', 'author').get(pk=course_id)
+            lessons = [
+                {
+                    'id': l.id,
+                    'title': l.title,
+                    'sequence_order': l.sequence_order,
+                    'description': l.description,
+                    'content': l.content,
+                    'duration_minutes': l.duration_minutes,
+                    'xp_reward': l.xp_reward,
+                }
+                for l in course.lessons.all().order_by('sequence_order')
+            ]
+            return Response({
+                'id': course.id,
+                'title': course.title,
+                'description': course.description,
+                'category': course.category.name if course.category else 'Uncategorized',
+                'level': course.level,
+                'xp_reward': course.xp_reward,
+                'is_published': course.is_published,
+                'lessons': lessons,
+            })
+        except Course.DoesNotExist:
+            return Response({'error': 'Course not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, course_id):
+        if request.user.role != 'admin' and not request.user.is_staff:
+            return Response({'error': 'Administrative privileges required.'}, status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            course = Course.objects.get(pk=course_id)
+            course_title = course.title
+            course.delete()
+            return Response({'message': f"Course '{course_title}' deleted successfully."})
+        except Course.DoesNotExist:
+            return Response({'error': 'Course not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+class AdminLessonCreateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, course_id):
+        if request.user.role != 'admin' and not request.user.is_staff:
+            return Response({'error': 'Administrative privileges required.'}, status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            course = Course.objects.get(pk=course_id)
+        except Course.DoesNotExist:
+            return Response({'error': 'Course not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        title = request.data.get('title')
+        description = request.data.get('description', '')
+        content = request.data.get('content', '')
+        duration_minutes = int(request.data.get('duration_minutes', 15))
+        xp_reward = int(request.data.get('xp_reward', 50))
+
+        if not title:
+            return Response({'error': 'Lesson title is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Auto-compute sequence order
+        last_lesson = course.lessons.order_by('-sequence_order').first()
+        sequence_order = (last_lesson.sequence_order + 1) if last_lesson else 1
+
+        lesson = Lesson.objects.create(
+            course=course,
+            title=title,
+            sequence_order=sequence_order,
+            description=description,
+            content=content or f"## {title}\n\nLesson content and curriculum material.",
+            duration_minutes=duration_minutes,
+            xp_reward=xp_reward
+        )
+
+        return Response({
+            'message': f"Lesson '{lesson.title}' added to '{course.title}'.",
+            'lesson': {
+                'id': lesson.id,
+                'title': lesson.title,
+                'sequence_order': lesson.sequence_order,
+                'duration_minutes': lesson.duration_minutes,
+                'xp_reward': lesson.xp_reward,
+            }
+        }, status=status.HTTP_201_CREATED)
+
+class AdminLessonDetailView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, lesson_id):
+        if request.user.role != 'admin' and not request.user.is_staff:
+            return Response({'error': 'Administrative privileges required.'}, status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            lesson = Lesson.objects.get(pk=lesson_id)
+            title = lesson.title
+            lesson.delete()
+            return Response({'message': f"Lesson '{title}' deleted successfully."})
+        except Lesson.DoesNotExist:
+            return Response({'error': 'Lesson not found.'}, status=status.HTTP_404_NOT_FOUND)
+
 
 class AdminSettingsView(APIView):
     permission_classes = [permissions.IsAuthenticated]

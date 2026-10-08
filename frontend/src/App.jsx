@@ -14,9 +14,12 @@ import { api } from './services/api';
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [userStats, setUserStats] = useState(null);
-  const [activeTab, setActiveTab] = useState('courses'); // 'courses', 'tutor', 'certificates', 'leaderboard', 'admin'
+  const [activeTab, setActiveTab] = useState('courses'); // 'courses', 'tutor', 'certificates', 'leaderboard'
+  const [adminTab, setAdminTab] = useState('overview'); // 'overview', 'courses', 'users', 'settings'
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+
+  const isAdmin = currentUser && (currentUser.role === 'admin' || currentUser.is_staff);
 
   // Multi-Theme State (Default: 'light')
   const [currentTheme, setCurrentTheme] = useState(() => {
@@ -72,9 +75,9 @@ export default function App() {
     setCurrentUser(user);
     refreshUser();
     if (user.role === 'admin') {
-      setActiveTab('admin'); // Load Administration Dashboard
+      setAdminTab('overview');
     } else {
-      setActiveTab('courses'); // Load User Learning Dashboard
+      setActiveTab('courses');
     }
   };
 
@@ -85,6 +88,7 @@ export default function App() {
     setSelectedLessonId(null);
     setSelectedCourseId(null);
     setActiveTab('courses');
+    setAdminTab('overview');
   };
 
   const handleOpenTutorWithCourse = (course) => {
@@ -115,6 +119,8 @@ export default function App() {
             setSelectedLessonId(null);
           }
         }}
+        adminTab={adminTab}
+        setAdminTab={setAdminTab}
         currentUser={currentUser}
         userStats={userStats}
         currentTheme={currentTheme}
@@ -127,59 +133,63 @@ export default function App() {
 
       {/* Main Content Area */}
       <main style={{ flex: 1 }}>
-        {activeTab === 'courses' && (
-          selectedLessonId ? (
-            <LessonViewer
-              lessonId={selectedLessonId}
-              onBack={() => setSelectedLessonId(null)}
-              onSelectLesson={(id) => setSelectedLessonId(id)}
-              onOpenTutorForLesson={handleOpenTutorWithLesson}
-              onOpenCertificate={handleOpenCertificate}
-              onRefreshUser={refreshUser}
-            />
-          ) : (
-            <CourseCatalog
-              currentUser={currentUser}
-              onSelectCourse={(id) => setSelectedCourseId(id)}
-              onSelectLesson={(lessonId) => setSelectedLessonId(lessonId)}
-              onEnrollSuccess={refreshUser}
-            />
-          )
-        )}
-
-        {activeTab === 'tutor' && (
-          <AITutorWorkspace
-            currentUser={currentUser}
-            initialCourse={tutorContextCourse}
-            initialLesson={tutorContextLesson}
-            onRefreshUser={refreshUser}
-          />
-        )}
-
-        {activeTab === 'certificates' && (
-          <CertificateHub
-            currentUser={currentUser}
-            onRefreshUser={refreshUser}
-            initialClaimCourseId={claimCourseId}
-          />
-        )}
-
-        {activeTab === 'leaderboard' && (
-          <LeaderboardView
-            currentUser={currentUser}
-          />
-        )}
-
-        {activeTab === 'admin' && (
+        {isAdmin ? (
           <AdminDashboard
             currentUser={currentUser}
+            activeTab={adminTab}
+            onTabChange={setAdminTab}
             onRefreshUser={refreshUser}
           />
+        ) : (
+          <>
+            {activeTab === 'courses' && (
+              selectedLessonId ? (
+                <LessonViewer
+                  lessonId={selectedLessonId}
+                  onBack={() => setSelectedLessonId(null)}
+                  onSelectLesson={(id) => setSelectedLessonId(id)}
+                  onOpenTutorForLesson={handleOpenTutorWithLesson}
+                  onOpenCertificate={handleOpenCertificate}
+                  onRefreshUser={refreshUser}
+                />
+              ) : (
+                <CourseCatalog
+                  currentUser={currentUser}
+                  onSelectCourse={(id) => setSelectedCourseId(id)}
+                  onSelectLesson={(lessonId) => setSelectedLessonId(lessonId)}
+                  onEnrollSuccess={refreshUser}
+                />
+              )
+            )}
+
+            {activeTab === 'tutor' && (
+              <AITutorWorkspace
+                currentUser={currentUser}
+                initialCourse={tutorContextCourse}
+                initialLesson={tutorContextLesson}
+                onRefreshUser={refreshUser}
+              />
+            )}
+
+            {activeTab === 'certificates' && (
+              <CertificateHub
+                currentUser={currentUser}
+                onRefreshUser={refreshUser}
+                initialClaimCourseId={claimCourseId}
+              />
+            )}
+
+            {activeTab === 'leaderboard' && (
+              <LeaderboardView
+                currentUser={currentUser}
+              />
+            )}
+          </>
         )}
       </main>
 
-      {/* Course Detail Modal */}
-      {selectedCourseId && (
+      {/* Course Detail Modal (Student Only) */}
+      {!isAdmin && selectedCourseId && (
         <CourseDetailModal
           courseId={selectedCourseId}
           currentUser={currentUser}
@@ -230,7 +240,7 @@ export default function App() {
           <span>🎓 Verified Credentials</span>
         </div>
         <div>
-          Role-Based Access: User & Administrator
+          {isAdmin ? '🛡️ Administrator Control Console • EduPlay AI Platform Management' : 'Role-Based Access: User & Administrator'}
         </div>
       </footer>
     </div>
